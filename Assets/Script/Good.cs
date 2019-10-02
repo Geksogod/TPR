@@ -20,7 +20,7 @@ public class Good : MonoBehaviour
     {
         for (int i = 0; i < GameObject.FindObjectsOfType<Animal>().Length; i++)
         {
-            GameObject.FindObjectsOfType<Animal>()[i].Energy = 100;
+            GameObject.FindObjectsOfType<Animal>()[i].Energy = -100;
         }
     }
 }
