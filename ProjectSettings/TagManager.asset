@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Food
   - EdibleFlora
+  - Animal
   layers:
   - Default
   - TransparentFX
