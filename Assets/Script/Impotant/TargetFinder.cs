@@ -1,32 +1,93 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class TargetFinder : MonoBehaviour
 {
+    [HideInInspector]
     public GameObject target;
+    private GameObject testTarget;
+    private List<GameObject> targets = new List<GameObject>();
+    public float smellRadius;
+    public GameObject TargetFinderObject;
+    private NavMeshAgent agent;
+    private bool pathFound;
+    private string foodTag;
+    private bool stopCour;
 
-    public void FindTarget(/*Animal.TypeOfFood typeOfFood*/)
+    private void Start()
     {
-        Animal.TypeOfFood typeOfFood = Animal.TypeOfFood.Grass; //Test
-        float distance = float.MaxValue;
+        agent = this.gameObject.GetComponent<NavMeshAgent>();
+    }
+    public void FindTarget(Animal.TypeOfFood typeOfFood)
+    {
+        TargetFinderObject.GetComponent<SphereCollider>().enabled = true;
+        if (targets.Count<=0)
+            StartCoroutine(Timer());
         switch (typeOfFood)
         {
             case Animal.TypeOfFood.Grass:
-                target = GameObject.FindGameObjectWithTag("EdibleFlora");
-                for (int i = 0; i < GameObject.FindGameObjectsWithTag("EdibleFlora").Length; i++)
-                {
-                    GameObject preTarget = GameObject.FindGameObjectsWithTag("EdibleFlora")[i];
-                    float newDistanceF = Vector3.Distance(this.gameObject.transform.position , preTarget.transform.position);
-                    if (newDistanceF < distance)
-                    {
-                        distance = newDistanceF;
-                        target = preTarget;
-                    }
-                }
+                foodTag = "EdibleFlora";
+                break;
+            case Animal.TypeOfFood.Meet:
+                foodTag = "EdibleFouna";
                 break;
         }
-        //return this.gameObject;
-        Debug.Log(target.name);//Test
+       
+    }
+    
+    IEnumerator Timer()
+    {
+        while (!stopCour)
+        {
+            yield return new WaitForFixedUpdate();
+            TargetFinderObject.GetComponent<SphereCollider>().radius += (smellRadius*Time.deltaTime);
+        }
+    }
+    private void Update()
+    {
+        if (!pathFound)
+        {
+            if (agent.hasPath)
+            {
+                if (!agent.pathPending)
+                {
+                    if (agent.path.status == NavMeshPathStatus.PathComplete)
+                    {
+                        pathFound = true;
+                        agent.ResetPath();
+                    }
+                    else
+                        agent.ResetPath();
+                }
+
+            }
+            if (pathFound)
+            {
+                StopCor();
+                if(this.gameObject.GetComponent<Animal>().state == Animal.State.SearchForEat)
+                {
+                    this.gameObject.GetComponent<Animal>().target = testTarget;
+                    this.gameObject.GetComponent<Animal>().state = Animal.State.ReadyGoToEat;
+                }
+            }
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.gameObject.tag== foodTag)
+        {
+            agent.destination = other.gameObject.transform.position;
+            testTarget = other.gameObject;
+        }
+    }
+    private void StopCor()
+    {
+        TargetFinderObject.GetComponent<SphereCollider>().radius = 100f;
+        TargetFinderObject.GetComponent<SphereCollider>().enabled = false;
+        stopCour = true;
+        StopCoroutine(Timer());
     }
 }

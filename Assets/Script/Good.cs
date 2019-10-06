@@ -15,6 +15,13 @@ public class Good : MonoBehaviour
             GameObject.FindObjectsOfType<Animal>()[i].Energy = -100;
         }
     }
+    public void Hunger()
+    {
+        for (int i = 0; i < GameObject.FindObjectsOfType<Animal>().Length; i++)
+        {
+            GameObject.FindObjectsOfType<Animal>()[i].Hunger = -80;
+        }
+    }
 
     public void AllAnimalsFindTarget()
     {

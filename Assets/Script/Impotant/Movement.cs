@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.AI;
 
 public class Movement : MonoBehaviour
@@ -8,6 +6,7 @@ public class Movement : MonoBehaviour
     private NavMeshAgent agent;
     private bool check = false;
     private bool MovingStart = false;
+    private GameObject target;
     public bool drawPath;
 
     private void Start()
@@ -15,20 +14,22 @@ public class Movement : MonoBehaviour
         agent = this.gameObject.GetComponent<NavMeshAgent>();
         agent.updateRotation = false;
     }
-    public void GoTo()
+    public void GoTo(GameObject newGameObject)
     {
+        target = newGameObject;
         check = !check;
+        Moving();
         MovingStart = true;
     }
 
-    private void FixedUpdate()
+    private void Moving()
     {
         if (check)
         {
-            GameObject target = this.gameObject.GetComponent<TargetFinder>().target;
             agent.destination = target.transform.position;
             transform.rotation = Quaternion.LookRotation(agent.velocity.normalized);
-            if (MovingStart && agent.hasPath&& !agent.pathPending)
+            agent.isStopped = false;
+            if (MovingStart)
             {
                 DrawPath();
                 MovingStart = false;
@@ -36,6 +37,30 @@ public class Movement : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        if (check)
+        {
+            if (!agent.pathPending && agent.remainingDistance <= target.GetComponent<Collider>().bounds.extents.magnitude * 2)
+            {
+                agent.isStopped = true;
+                agent.ResetPath();
+                this.gameObject.GetComponent<Animal>().state = Animal.State.Eating;
+                check = false;
+            }
+        }
+    }
+    //private void OnCollisionEnter(Collision collision)
+    //{
+    //    Debug.Log(collision.gameObject.name);
+    //    if(collision.gameObject == target)
+    //    {
+    //        agent.isStopped = true;
+    //        agent.ResetPath();
+    //        this.gameObject.GetComponent<Animal>().state = Animal.State.Eating;
+    //        check = false;
+    //    }
+    //}
     [System.Obsolete]
     private void DrawPath()
     {

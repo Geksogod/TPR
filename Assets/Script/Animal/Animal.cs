@@ -5,9 +5,10 @@ public class Animal : MonoBehaviour
     private float health;
     private float energy;
     private float timeToSleep;
-    private float hunger;
+    public float hunger;
     private bool alive;
 
+    public GameObject target;
     public float maxHealht;
     public float damage;
     public float speed;
@@ -37,7 +38,7 @@ public class Animal : MonoBehaviour
             }
         }
     }
-    private float Hunger
+    public float Hunger
     {
         get { return hunger; }
         set
@@ -45,7 +46,7 @@ public class Animal : MonoBehaviour
             hunger = hunger + value;
             if (hunger <= 50&&hunger>0)
             {
-                state = State.SearchForEat;
+                state = State.ReadyForEat;
             }
             else if (hunger <= 0)
             {
@@ -64,7 +65,11 @@ public class Animal : MonoBehaviour
         Stay,
         Sleep,
         WakeUp,
+        ReadyForEat,
         SearchForEat,
+        ReadyGoToEat,
+        GoingToEat,
+        Eating,
         Relax
     }
     public State state;
@@ -74,8 +79,10 @@ public class Animal : MonoBehaviour
     {
         this.animator = this.gameObject.GetComponent<Animator>();
         Energy = 100;
+        Hunger = 100;
         Health = maxHealht;
     }
+
     private void Update()
     {
         if(state!= State.Sleep)
@@ -93,6 +100,14 @@ public class Animal : MonoBehaviour
                 break;
             case State.WakeUp:
                 state = State.Stay;
+                break;
+            case State.ReadyForEat:
+                this.gameObject.GetComponent<TargetFinder>().FindTarget(typeOfFood);
+                state = State.SearchForEat;
+                break;
+            case State.ReadyGoToEat:
+                this.gameObject.GetComponent<Movement>().GoTo(target);
+                state = State.GoingToEat;
                 break;
         }
     }
