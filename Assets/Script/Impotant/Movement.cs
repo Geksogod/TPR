@@ -8,59 +8,59 @@ public class Movement : MonoBehaviour
     private bool MovingStart = false;
     private GameObject target;
     public bool drawPath;
+    private Animal Animal;
 
     private void Start()
     {
         agent = this.gameObject.GetComponent<NavMeshAgent>();
         agent.updateRotation = false;
+        Animal = this.gameObject.GetComponent<Animal>();
     }
     public void GoTo(GameObject newGameObject)
     {
         target = newGameObject;
-        check = !check;
-        Moving();
         MovingStart = true;
+        Moving();
     }
 
     private void Moving()
     {
-        if (check)
-        {
-            agent.destination = target.transform.position;
-            transform.rotation = Quaternion.LookRotation(agent.velocity.normalized);
-            agent.isStopped = false;
-            if (MovingStart)
-            {
-                DrawPath();
-                MovingStart = false;
-            }
-        }
+        agent.destination = target.transform.position;
+        agent.isStopped = false;
+        check = !check;
     }
 
     private void Update()
     {
         if (check)
         {
-            if (!agent.pathPending && agent.remainingDistance <= target.GetComponent<Collider>().bounds.extents.magnitude * 2)
+            if (!agent.pathPending && Animal != null && Animal.state == Animal.State.GoingToEat && agent.remainingDistance <= target.GetComponent<Collider>().bounds.extents.magnitude * 2)
             {
                 agent.isStopped = true;
                 agent.ResetPath();
-                this.gameObject.GetComponent<Animal>().state = Animal.State.Eating;
+                Animal.state = Animal.State.Eating;
+                check = false;
+            }
+            else if (!agent.pathPending && Animal != null && Animal.state == Animal.State.Walk && agent.remainingDistance <= 0.5f) 
+            {
+                agent.isStopped = true;
+                agent.ResetPath();
+                Destroy(GameObject.Find("Moving_" + this.gameObject.name));
+                Animal.state = Animal.State.Stay;
                 check = false;
             }
         }
+        if (MovingStart && !agent.pathPending)
+        {
+            DrawPath();
+            MovingStart = false;
+        }
+        if (agent.hasPath && !agent.pathPending)
+        {
+            transform.rotation = Quaternion.LookRotation(agent.velocity.normalized);
+        }
     }
-    //private void OnCollisionEnter(Collision collision)
-    //{
-    //    Debug.Log(collision.gameObject.name);
-    //    if(collision.gameObject == target)
-    //    {
-    //        agent.isStopped = true;
-    //        agent.ResetPath();
-    //        this.gameObject.GetComponent<Animal>().state = Animal.State.Eating;
-    //        check = false;
-    //    }
-    //}
+
     [System.Obsolete]
     private void DrawPath()
     {

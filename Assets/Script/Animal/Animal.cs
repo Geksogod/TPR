@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
 public class Animal : MonoBehaviour
 {
@@ -9,7 +11,6 @@ public class Animal : MonoBehaviour
     private bool alive;
 
     public GameObject target;
-    public float maxHealht;
     public float damage;
     public float speed;
 
@@ -63,6 +64,9 @@ public class Animal : MonoBehaviour
     public enum State
     {
         Stay,
+        FindingNextPosition,
+        FoundNextPosition,
+        Walk,
         Sleep,
         WakeUp,
         ReadyForEat,
@@ -80,19 +84,23 @@ public class Animal : MonoBehaviour
         this.animator = this.gameObject.GetComponent<Animator>();
         Energy = 100;
         Hunger = 100;
-        Health = maxHealht;
+        Health = 100;
     }
 
     private void Update()
     {
-        if(state!= State.Sleep)
+        if (state != State.Stay)
+        {
+            StopAllCoroutines();
+        }
+        if (state!= State.Sleep)
         {
             Energy = -0.005f;
         }
         switch (state)
         {
             case State.Sleep:
-                Energy = 0.01f;
+                Energy += 0.01f;
                 if (energy >= timeToSleep)
                 {
                     WakeUP();
@@ -101,18 +109,43 @@ public class Animal : MonoBehaviour
             case State.WakeUp:
                 state = State.Stay;
                 break;
+            case State.Stay:
+                StartCoroutine(Timer(Random.Range(10, 20)));
+                ResetAnimator();
+                break;
             case State.ReadyForEat:
                 this.gameObject.GetComponent<TargetFinder>().FindTarget(typeOfFood);
                 state = State.SearchForEat;
+                break;
+            case State.FoundNextPosition:
+                this.gameObject.GetComponent<Movement>().GoTo(target);
+                state = State.Walk;
                 break;
             case State.ReadyGoToEat:
                 this.gameObject.GetComponent<Movement>().GoTo(target);
                 state = State.GoingToEat;
                 break;
+            case State.Walk:
+                ResetAnimator();
+                this.gameObject.GetComponent<Animator>().SetBool("Walk", true);
+                break;
+            case State.GoingToEat:
+                ResetAnimator();
+                this.gameObject.GetComponent<Animator>().SetBool("Walk",true);
+                break;
+            case State.Eating:
+                ResetAnimator();
+                this.gameObject.GetComponent<Animator>().SetBool("Eat",true);
+                break;
         }
     }
 
-
+    private void ResetAnimator()
+    {
+        this.gameObject.GetComponent<Animator>().SetBool("Walk",false);
+        this.gameObject.GetComponent<Animator>().SetBool("Eat",false);
+        this.gameObject.GetComponent<Animator>().SetBool("Run",false);
+    }
 
 
 
@@ -154,5 +187,13 @@ public class Animal : MonoBehaviour
     {
         Health = damage_;
         return alive;
+    }
+
+    IEnumerator Timer(float time)
+    {
+        yield return new WaitForSeconds(time);
+        state = State.FindingNextPosition;
+        this.gameObject.GetComponent<TargetFinder>().FindNextPosition();
+        StopAllCoroutines();
     }
 }
