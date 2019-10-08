@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class MapDisplay : MonoBehaviour
@@ -13,9 +14,20 @@ public class MapDisplay : MonoBehaviour
         textureRenderer.sharedMaterial.mainTexture = texture;
         textureRenderer.transform.localScale = new Vector3(texture.width, 1, texture.height);
     }
-    public void DrawMesh(MeshData meshData, Texture2D texture)
+    public void DrawMesh(MeshData meshData, Texture2D texture,bool save)
     {
-        meshFilter.sharedMesh = meshData.CreateMesh();
+        Mesh mesh = meshData.CreateMesh();
+        mesh.name = "Terrain";
+        if (save)
+        {
+            string filePath =
+            EditorUtility.SaveFilePanelInProject("Save Procedural Mesh", "Procedural Mesh", "asset", "");
+            AssetDatabase.CreateAsset(mesh, filePath);
+            filePath =
+            EditorUtility.SaveFilePanelInProject("Save Procedural texture", "Procedural texture", "asset", "");
+            AssetDatabase.CreateAsset(texture, filePath);
+        }
+        meshFilter.sharedMesh = mesh;
         meshRenderer.sharedMaterial.mainTexture = texture;
     }
 }

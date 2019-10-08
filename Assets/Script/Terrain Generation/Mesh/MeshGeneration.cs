@@ -6,22 +6,22 @@ public static class MeshGeneration
 {
    public static MeshData GenerareTerrainMesh(float [,] heightMap, float heightMultiplier,AnimationCurve heightCurve)
    {
-        int wight = heightMap.GetLength(0);
+        int mapChankSize = heightMap.GetLength(0);
         int height = heightMap.GetLength(1);
-        MeshData meshData = new MeshData(wight, height);
-        float topLeftX = (wight - 1) / -2f;
+        MeshData meshData = new MeshData(mapChankSize, height);
+        float topLeftX = (mapChankSize - 1) / -2f;
         float topLeftZ = (height - 1) / 2f;
         int verticesIndes = 0;
         for (int y = 0; y < height; y++)
         {
-            for (int x = 0; x < wight; x++)
+            for (int x = 0; x < mapChankSize; x++)
             {
                 meshData.vertices[verticesIndes] = new Vector3((topLeftX +x)*3, heightCurve.Evaluate(heightMap[x, y])*heightMultiplier,(topLeftZ - y)*3);
-                meshData.uvs[verticesIndes] = new Vector2(x / (float)wight, y / (float)height);
-                if (x < wight - 1 && y < height - 1)
+                meshData.uvs[verticesIndes] = new Vector2(x / (float)mapChankSize, y / (float)height);
+                if (x < mapChankSize - 1 && y < height - 1)
                 {
-                    meshData.AddTriangle(verticesIndes, verticesIndes + wight + 1, verticesIndes + wight);
-                    meshData.AddTriangle(verticesIndes +wight+1, verticesIndes,verticesIndes + 1);
+                    meshData.AddTriangle(verticesIndes, verticesIndes + mapChankSize + 1, verticesIndes + mapChankSize);
+                    meshData.AddTriangle(verticesIndes +mapChankSize+1, verticesIndes,verticesIndes + 1);
                 }
                 verticesIndes++;
             }
@@ -37,11 +37,11 @@ public class MeshData
     public int trienglesIndex;
     public Vector2[] uvs;
 
-    public MeshData(int wight, int height)
+    public MeshData(int mapChankSize, int height)
     {
-        vertices = new Vector3[wight * height];
-        uvs = new Vector2[wight * height];
-        triangles = new int[(wight - 1) * (height - 1)*6];
+        vertices = new Vector3[mapChankSize * height];
+        uvs = new Vector2[mapChankSize * height];
+        triangles = new int[(mapChankSize - 1) * (height - 1)*6];
     }
 
     public void AddTriangle(int a,int b,int c)

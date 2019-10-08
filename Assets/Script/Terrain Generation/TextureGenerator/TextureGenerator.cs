@@ -1,12 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public static class TextureGenerator  
 {
-    public static Texture2D TextureFromColorMap(Color[] colorMap,int Wight,int Height)
+    public static Texture2D TextureFromColorMap(Color[] colorMap,int mapChankSize)
     {
-        Texture2D texture = new Texture2D(Wight, Height);
+        Texture2D texture = new Texture2D(mapChankSize, mapChankSize);
         texture.filterMode = FilterMode.Point;
         texture.wrapMode = TextureWrapMode.Clamp;
         texture.SetPixels(colorMap);
@@ -16,18 +17,18 @@ public static class TextureGenerator
 
     public static Texture2D TextureFromHeightMap(float[,] HeightMap)
     {
-        int wight = HeightMap.GetLength(0);
+        int mapChankSize = HeightMap.GetLength(0);
         int height = HeightMap.GetLength(1);
 
-        Texture2D texture2D = new Texture2D(wight, height);
-        Color[] colors = new Color[wight * height];
+        Texture2D texture2D = new Texture2D(mapChankSize, height);
+        Color[] colors = new Color[mapChankSize * height];
         for (int y = 0; y < height; y++)
         {
-            for (int x = 0; x < wight; x++)
+            for (int x = 0; x < mapChankSize; x++)
             {
-                colors[y * wight + x] = Color.Lerp(Color.black, Color.white, HeightMap[x, y]);
+                colors[y * mapChankSize + x] = Color.Lerp(Color.black, Color.white, HeightMap[x, y]);
             }
         }
-        return TextureFromColorMap(colors,wight,height);
+        return TextureFromColorMap(colors,mapChankSize);
     }
 }

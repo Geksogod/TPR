@@ -3,7 +3,7 @@
 public static class PerlinNoise
 {
 
-    public static float[,] GenerateNoise(int Wight, int Height,int seed, float scale, int octaves, float persistance, float lacunarity,Vector2 offset)
+    public static float[,] GenerateNoise(int mapChankSize,int seed, float scale, int octaves, float persistance, float lacunarity,Vector2 offset)
     {
         if (octaves > 30)
         {
@@ -21,20 +21,20 @@ public static class PerlinNoise
             float offsetY = prng.Next(-100000, 100000) + offset.y;
             octavesOffset[i] = new Vector2(offsetX, offsetY);
         }
-        float[,] perlinNoise = new float[Wight, Height];
+        float[,] perlinNoise = new float[mapChankSize, mapChankSize];
         if (scale <= 0)
         {
             scale = 0.0001f;
         }
-        float halfWight = Wight / 2;
+        float halfmapChankSize = mapChankSize / 2;
 
-        float halfHeight = Height / 2;
+        float halfHeight = mapChankSize / 2;
 
         float maxValueHeight = float.MinValue;
         float minValueHeight = float.MaxValue;
-        for (int y = 0; y < Height; y++)
+        for (int y = 0; y < mapChankSize; y++)
         {
-            for (int x = 0; x < Wight; x++)
+            for (int x = 0; x < mapChankSize; x++)
             {
                 float amplitude = 1;
                 float frequency = 1;
@@ -42,7 +42,7 @@ public static class PerlinNoise
 
                 for (int i = 0; i < octaves; i++)
                 {
-                    float sampleX = (x- halfWight) / scale * frequency+octavesOffset[i].x;
+                    float sampleX = (x- halfmapChankSize) / scale * frequency+octavesOffset[i].x;
                     float sampleY = (y-halfHeight) / scale * frequency + octavesOffset[i].y;
                     float perlinValue = Mathf.PerlinNoise(sampleX, sampleY) * 2 - 1;
                     noiseHeight += perlinValue * amplitude;
@@ -61,9 +61,9 @@ public static class PerlinNoise
                 perlinNoise[x, y] = noiseHeight;
             }
         }
-        for (int y = 0; y < Height; y++)
+        for (int y = 0; y < mapChankSize; y++)
         {
-            for (int x = 0; x < Wight; x++)
+            for (int x = 0; x < mapChankSize; x++)
             {
                 perlinNoise[x, y] = Mathf.InverseLerp(minValueHeight, maxValueHeight, perlinNoise[x, y]);
             }

@@ -59,13 +59,7 @@ public class TargetFinder : MonoBehaviour
             pos.y = Terrain.activeTerrain.SampleHeight(pos);
         else
         {
-            RaycastHit hit;
-            Ray ray = new Ray(new Vector3(pos.x, 1000f, pos.z), Vector3.down);
-            if (plane.GetComponent<Collider>().Raycast(ray, out hit, 2.0f * 1000f))
-            {
-                pos.y = hit.point.y;
-                Debug.Log("Hit point: " + hit.point);
-            }
+            pos.y = Mathem.FindYOnPlane(pos.x,pos.z,plane);
         }
         movingTo.transform.position = pos;
         agent.destination = movingTo.transform.position;

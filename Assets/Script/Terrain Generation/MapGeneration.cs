@@ -10,8 +10,7 @@ public class MapGeneration : MonoBehaviour
         Mesh
     }
     public DrawMode drawMode;
-    public int Wight;
-    public int Height;
+    public const int mapChankSize =241;
     public float Scale;
 
     public int octaves;
@@ -26,18 +25,18 @@ public class MapGeneration : MonoBehaviour
     public AnimationCurve curve;
     public void GenerateMap()
     {
-        float[,] noiseMap = PerlinNoise.GenerateNoise(Wight,Height,seed,Scale, octaves,persistance,lacunarity, offset);
-        Color[] colorMap = new Color[Wight*Height];
-        for (int y = 0; y < Height; y++)
+        float[,] noiseMap = PerlinNoise.GenerateNoise(mapChankSize,seed,Scale, octaves,persistance,lacunarity, offset);
+        Color[] colorMap = new Color[mapChankSize*mapChankSize];
+        for (int y = 0; y < mapChankSize; y++)
         {
-            for (int x = 0; x < Wight; x++)
+            for (int x = 0; x < mapChankSize; x++)
             {
                 float currentHeight = noiseMap[x, y];
                 for (int i = 0; i < Regions.Length; i++)
                 {
                     if (currentHeight <= Regions[i].height)
                     {
-                        colorMap[y * Wight + x] = Regions[i].color;
+                        colorMap[y * mapChankSize + x] = Regions[i].color;
                         break;
                     }
                 }
@@ -48,12 +47,14 @@ public class MapGeneration : MonoBehaviour
             mapDisplay.DrawTexture(TextureGenerator.TextureFromHeightMap(noiseMap));
         else if(drawMode == DrawMode.ColorMap)
         {
-            mapDisplay.DrawTexture(TextureGenerator.TextureFromColorMap(colorMap,Wight,Height));
+            mapDisplay.DrawTexture(TextureGenerator.TextureFromColorMap(colorMap,mapChankSize));
         }
         else if(drawMode == DrawMode.Mesh)
         {
-            mapDisplay.DrawMesh(MeshGeneration.GenerareTerrainMesh(noiseMap, heightMultipler,curve), TextureGenerator.TextureFromColorMap(colorMap, Wight, Height));
+            mapDisplay.DrawMesh(MeshGeneration.GenerareTerrainMesh(noiseMap, heightMultipler,curve), TextureGenerator.TextureFromColorMap(colorMap, mapChankSize),!GenerationAllTime);
+
         }
+        
     }
 }
 
