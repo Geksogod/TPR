@@ -14,6 +14,7 @@ public class TargetFinder : MonoBehaviour
     public GameObject plane;
     private Movement movement;
     private NavMeshAgent agent;
+    private Animal animal;
 
     public float smellCoefficient;
     public float smellMaxRadius;
@@ -29,6 +30,7 @@ public class TargetFinder : MonoBehaviour
     private void Start()
     {
         agent = this.gameObject.GetComponent<NavMeshAgent>();
+        animal = this.gameObject.GetComponent<Animal>();
         //movement = 
     }
     public void FindTarget(Animal.TypeOfFood typeOfFood)
@@ -36,6 +38,7 @@ public class TargetFinder : MonoBehaviour
         stopCour = false;
         pathFound = false;
         TargetFinderObject.GetComponent<SphereCollider>().enabled = true;
+        agent.ResetPath();
         if (targets.Count <= 0)
             StartCoroutine(Timer());
         switch (typeOfFood)
@@ -53,6 +56,8 @@ public class TargetFinder : MonoBehaviour
     {
         pathFound = false;
         stopCour = false;
+        TargetFinderObject.GetComponent<SphereCollider>().enabled = true;
+        agent.ResetPath();
         GameObject movingTo = new GameObject("Moving_" + this.gameObject.name);
         Vector3 pos = transform.position;
         pos = new Vector3(pos.x + Random.Range(-maxXOffset, maxXOffset), pos.y, pos.z + Random.Range(-maxZOffset, maxZOffset));
@@ -75,7 +80,12 @@ public class TargetFinder : MonoBehaviour
             TargetFinderObject.GetComponent<SphereCollider>().radius += (smellCoefficient * Time.deltaTime);
             if (TargetFinderObject.GetComponent<SphereCollider>().radius >= smellMaxRadius)
             {
-                TargetFinderObject.GetComponent<SphereCollider>().radius = 0;
+                TargetFinderObject.GetComponent<SphereCollider>().radius = 1;
+                if (animal.target == null)
+                {
+                    animal.state = Animal.State.Stay;
+                    StopCor();
+                }
             }
         }
     }
@@ -83,7 +93,6 @@ public class TargetFinder : MonoBehaviour
     {
         if (!pathFound)
         {
-            Debug.Log(agent.pathPending);
             if (agent.hasPath && !agent.pathPending)
             {
                 if (agent.path.status == NavMeshPathStatus.PathComplete)
@@ -94,7 +103,7 @@ public class TargetFinder : MonoBehaviour
                 else
                 {
                     agent.ResetPath();
-                    if (this.gameObject.GetComponent<Animal>().state == Animal.State.FindingNextPosition)
+                    if (animal.state == Animal.State.FindingNextPosition)
                     {
                         FindNextPosition();
                         Destroy(GameObject.Find("Moving_" + this.gameObject.name));
@@ -105,7 +114,7 @@ public class TargetFinder : MonoBehaviour
             else if (!agent.hasPath && !agent.pathPending)
             {
                 agent.ResetPath();
-                if (this.gameObject.GetComponent<Animal>().state == Animal.State.FindingNextPosition)
+                if (animal.state == Animal.State.FindingNextPosition)
                 {
                     FindNextPosition();
                     Destroy(GameObject.Find("Moving_" + this.gameObject.name));
@@ -114,17 +123,20 @@ public class TargetFinder : MonoBehaviour
             }
             if (pathFound)
             {
+                if (animal.state == Animal.State.SearchForEat)
+                {
+                    animal.target = testTarget;
+                    testTarget = null;
+                    //animal.state = Animal.State.ReadyGoToEat;
+                }
+                if (animal.state == Animal.State.FindingNextPosition)
+                {
+                    animal.state = Animal.State.FoundNextPosition;
+                    animal.target = testTarget;
+                    testTarget = null;
+                }
+
                 StopCor();
-                if (this.gameObject.GetComponent<Animal>().state == Animal.State.SearchForEat)
-                {
-                    this.gameObject.GetComponent<Animal>().target = testTarget;
-                    //this.gameObject.GetComponent<Animal>().state = Animal.State.ReadyGoToEat;
-                }
-                if (this.gameObject.GetComponent<Animal>().state == Animal.State.FindingNextPosition)
-                {
-                    this.gameObject.GetComponent<Animal>().state = Animal.State.FoundNextPosition;
-                    this.gameObject.GetComponent<Animal>().target = testTarget;
-                }
             }
         }
 
@@ -133,7 +145,7 @@ public class TargetFinder : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.tag == foodTag)
+        if (other.gameObject.tag == foodTag&& other.gameObject.GetComponent<Plane>() && other.gameObject.GetComponent<Plane>().ready)
         {
             agent.destination = other.gameObject.transform.position;
             testTarget = other.gameObject;
@@ -141,7 +153,7 @@ public class TargetFinder : MonoBehaviour
     }
     private void StopCor()
     {
-        TargetFinderObject.GetComponent<SphereCollider>().radius = 100f;
+        TargetFinderObject.GetComponent<SphereCollider>().radius = 1f;
         TargetFinderObject.GetComponent<SphereCollider>().enabled = false;
         stopCour = true;
         StopCoroutine(Timer());

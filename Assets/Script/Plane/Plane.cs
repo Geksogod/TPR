@@ -44,7 +44,7 @@ public class Plane : MonoBehaviour
             ready = true;
             MeshFilter.mesh = ReadyMesh;
         }
-        else if(progress < 100&&ready)
+        else if(progress < 20&&ready)
         {
             ready = false;
             MeshFilter.mesh = notReadyMesh;

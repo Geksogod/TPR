@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class Animal : MonoBehaviour
 {
@@ -8,17 +9,21 @@ public class Animal : MonoBehaviour
     private float energy;
     private float timeToSleep;
     public float hunger;
-    private bool alive;
+    private bool alive = true;
+    private Animator animator;
 
     public GameObject target;
     public float damage;
     public float speed;
 
+    public string deadAnimation;
     private float Health
     {
         get { return health; }
         set
         {
+            if (!alive)
+                return;
             health = health + value;
             if (health <= 0)
             {
@@ -31,6 +36,8 @@ public class Animal : MonoBehaviour
         get { return energy; }
         set
         {
+            if (!alive)
+                return;
             this.energy = this.energy + value>=100?100: this.energy + value;
             if (energy <= 0)
             {
@@ -44,14 +51,21 @@ public class Animal : MonoBehaviour
         get { return hunger; }
         set
         {
+            if (!alive)
+                return;
             hunger = hunger + value;
-            if (hunger <= 50&&hunger>0)
+            if (hunger <= 50&&hunger>0&&state != State.ReadyForEat && state != State.Eating)
             {
                 state = State.ReadyForEat;
             }
             else if (hunger <= 0)
             {
                 Dead();
+            }
+            else if (hunger>=60)
+            {
+                target = null;
+                state = State.Stay;
             }
         }
     }
@@ -74,14 +88,14 @@ public class Animal : MonoBehaviour
         ReadyGoToEat,
         GoingToEat,
         Eating,
-        Relax
+        Relax,
+        Dead
     }
     public State state;
 
-    private Animator animator;
     private void Awake()
     {
-        this.animator = this.gameObject.GetComponent<Animator>();
+        animator = this.gameObject.GetComponent<Animator>();
         Energy = 100;
         Hunger = 100;
         Health = 100;
@@ -89,6 +103,14 @@ public class Animal : MonoBehaviour
 
     private void Update()
     {
+        //Debug.Log(animator.GetCurrentAnimatorClipInfo(0)[0].clip.);
+        if (state == State.Dead) {
+            if (this.gameObject.GetComponent<Animator>() != null && animator.GetCurrentAnimatorClipInfo(0)[0].clip.name == deadAnimation)
+            {
+                Destroy(this.gameObject.GetComponent<Animator>());
+            }
+            return;
+        }
         if (state != State.Stay)
         {
             StopAllCoroutines();
@@ -118,6 +140,7 @@ public class Animal : MonoBehaviour
                     state = Animal.State.ReadyGoToEat;
                 break;
             case State.ReadyForEat:
+                target = null;
                 this.gameObject.GetComponent<TargetFinder>().FindTarget(typeOfFood);
                 state = State.SearchForEat;
                 break;
@@ -131,24 +154,24 @@ public class Animal : MonoBehaviour
                 break;
             case State.Walk:
                 ResetAnimator();
-                this.gameObject.GetComponent<Animator>().SetBool("Walk", true);
+                animator.SetBool("Walk", true);
                 break;
             case State.GoingToEat:
                 ResetAnimator();
-                this.gameObject.GetComponent<Animator>().SetBool("Walk",true);
+                animator.SetBool("Walk",true);
                 break;
             case State.Eating:
                 ResetAnimator();
-                this.gameObject.GetComponent<Animator>().SetBool("Eat",true);
+                animator.SetBool("Eat",true);
                 break;
         }
     }
 
     private void ResetAnimator()
     {
-        this.gameObject.GetComponent<Animator>().SetBool("Walk",false);
-        this.gameObject.GetComponent<Animator>().SetBool("Eat",false);
-        this.gameObject.GetComponent<Animator>().SetBool("Run",false);
+        animator.SetBool("Walk",false);
+        animator.SetBool("Eat",false);
+        animator.SetBool("Run",false);
     }
 
 
@@ -156,6 +179,12 @@ public class Animal : MonoBehaviour
     private void Dead()
     {
         alive = false;
+        ResetAnimator();
+        this.gameObject.GetComponent<Animator>().SetBool("Die", true);
+        state = State.Dead;
+        Destroy(this.gameObject.GetComponent<TargetFinder>());
+        Destroy(this.gameObject.GetComponent<Movement>());
+        Destroy(this.gameObject.GetComponent<NavMeshAgent>());
     }
 
 
@@ -199,5 +228,16 @@ public class Animal : MonoBehaviour
         state = State.FindingNextPosition;
         this.gameObject.GetComponent<TargetFinder>().FindNextPosition();
         StopAllCoroutines();
+    }
+    private void OnTriggerStay(Collider other)
+    {
+        if (state == State.Eating && other.gameObject == target)
+        {
+            if(other.gameObject.GetComponent<Plane>()!=null&& other.gameObject.GetComponent<Plane>().ready)
+            {
+                Hunger = 1f * Time.deltaTime;
+                other.gameObject.GetComponent<Plane>().progress = other.gameObject.GetComponent<Plane>().progress - 1f * Time.deltaTime;
+            }
+        }
     }
 }
