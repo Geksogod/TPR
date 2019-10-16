@@ -113,6 +113,10 @@ public class Animal : MonoBehaviour
                 StartCoroutine(Timer(Random.Range(10, 20)));
                 ResetAnimator();
                 break;
+            case State.SearchForEat:
+                if(target!=null)
+                    state = Animal.State.ReadyGoToEat;
+                break;
             case State.ReadyForEat:
                 this.gameObject.GetComponent<TargetFinder>().FindTarget(typeOfFood);
                 state = State.SearchForEat;

@@ -12,7 +12,7 @@ public class TargetFinder : MonoBehaviour
     private List<GameObject> targets = new List<GameObject>();
 
     public GameObject plane;
-
+    private Movement movement;
     private NavMeshAgent agent;
 
     public float smellCoefficient;
@@ -29,6 +29,7 @@ public class TargetFinder : MonoBehaviour
     private void Start()
     {
         agent = this.gameObject.GetComponent<NavMeshAgent>();
+        //movement = 
     }
     public void FindTarget(Animal.TypeOfFood typeOfFood)
     {
@@ -117,7 +118,7 @@ public class TargetFinder : MonoBehaviour
                 if (this.gameObject.GetComponent<Animal>().state == Animal.State.SearchForEat)
                 {
                     this.gameObject.GetComponent<Animal>().target = testTarget;
-                    this.gameObject.GetComponent<Animal>().state = Animal.State.ReadyGoToEat;
+                    //this.gameObject.GetComponent<Animal>().state = Animal.State.ReadyGoToEat;
                 }
                 if (this.gameObject.GetComponent<Animal>().state == Animal.State.FindingNextPosition)
                 {
@@ -126,6 +127,8 @@ public class TargetFinder : MonoBehaviour
                 }
             }
         }
+
+        //if()
     }
 
     private void OnTriggerEnter(Collider other)

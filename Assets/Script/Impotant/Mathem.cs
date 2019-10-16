@@ -17,6 +17,7 @@ public static class Mathem
             Debug.Log("Hit point: " + hit.point);
         }
         return pos.y;
+        
     }
 
 
