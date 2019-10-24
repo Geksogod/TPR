@@ -40,8 +40,7 @@ public class СustomizationSystem : MonoBehaviour
 
             }
         }
-        Debug.LogWarning("Index not correct");
-        return customization[0].head[0].GetComponent<SkinnedMeshRenderer>().sharedMesh;
+        return null;
     }
 
     private Mesh SetBody(Human.HumanType type)
@@ -69,8 +68,7 @@ public class СustomizationSystem : MonoBehaviour
 
             }
         }
-        Debug.LogWarning("Index not correct");
-        return customization[0].body[0].GetComponent<SkinnedMeshRenderer>().sharedMesh;
+        return null;
     }
     private Mesh SetLeftHand(Human.HumanType type)
     {
@@ -97,8 +95,7 @@ public class СustomizationSystem : MonoBehaviour
 
             }
         }
-        Debug.LogWarning("Index not correct");
-        return customization[0].leftHand[0].GetComponent<SkinnedMeshRenderer>().sharedMesh;
+        return null;
     }
     private Mesh SetRightHand(Human.HumanType type)
     {
@@ -126,8 +123,7 @@ public class СustomizationSystem : MonoBehaviour
 
             }
         }
-        Debug.LogWarning("Index not correct");
-        return customization[0].rightHand[0].GetComponent<SkinnedMeshRenderer>().sharedMesh;
+        return null;
     }
 
 

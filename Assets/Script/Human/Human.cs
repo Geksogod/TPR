@@ -1,10 +1,12 @@
-﻿using UnityEngine;
+﻿using Unity.Collections;
+using UnityEngine;
 
 public class Human : MonoBehaviour
 {
+    [Header("Human Settings"),SerializeField]
     private int health;
+    [Range(1,100)]
     public int speed;
-
     public int Health
     {
         get { return health; }
@@ -26,12 +28,17 @@ public class Human : MonoBehaviour
         Worker
     }
     public HumanType humanType;
+    [Header("Human customization")]
     public GameObject head;
     public GameObject body;
     public GameObject leftHand;
     public GameObject rightHand;
+    private Animator animator;
 
-
+    private void Awake()
+    {
+        animator = this.gameObject.GetComponent<Animator>();
+    }
     // Start is called before the first frame update
     void Start()
     {
@@ -46,20 +53,32 @@ public class Human : MonoBehaviour
     }
 
 
-    private void Dead()
+    public void Dead()
     {
-
+        int deadTriger = Random.Range(0, 2);
+        speed = 0;
+        SetAnimationTrigger("Dead_" + deadTriger.ToString());
     }
 
     public void Customization()
     {
         СustomizationSystem cusmomizator = GameObject.Find("СustomizationSystem").GetComponent<СustomizationSystem>();
-        if (leftHand == null)
-            cusmomizator.Customization(ref head, ref body, ref rightHand, humanType);
-        else if (rightHand == null)
-            cusmomizator.Customization(ref head, ref body, ref leftHand, humanType);
-        else
-            cusmomizator.Customization(ref head, ref body, ref leftHand, ref rightHand, humanType);
+        cusmomizator.Customization(ref head, ref body, ref leftHand, ref rightHand, humanType);
+    }
+
+    /// <summary>
+    /// Reset all trigers && Set value this triger animation
+    /// </summary>
+    /// <param name="trigger">trigger name</param>
+    protected void SetAnimationTrigger(string trigger)
+    {
+        if (animator != null)
+        {
+            foreach (AnimatorControllerParameter p in animator.parameters)
+                if (p.type == AnimatorControllerParameterType.Trigger)
+                    animator.ResetTrigger(p.name);
+            animator.SetTrigger(trigger);
+        }
     }
 }
 
