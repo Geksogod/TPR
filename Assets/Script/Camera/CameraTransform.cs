@@ -1,9 +1,9 @@
-﻿using Unity.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 
+[RequireComponent(typeof(Camera))]
 public class CameraTransform : MonoBehaviour
 {
-    [Header("Zoom Settings"),SerializeField, Range(1, 20)]
+    [Header("Zoom Settings"), SerializeField, Range(1, 20)]
     private float ZoomSpeed;
     [SerializeField, Range(10, 50)]
     private float MaxZoom;
@@ -18,12 +18,14 @@ public class CameraTransform : MonoBehaviour
     private float positionSpeed;
     [SerializeField]
     private float trashHold;
+    private float xAxis;
 
 
     [SerializeField, Header("Mouse Position")]
-    private float Mouse1X;
+    private float MouseX;
     [SerializeField]
-    private float Mouse1Y;
+    private float MouseY;
+    private float ScreenEdgeBorderThickness = 5.0f;
 
     private Camera cameraMain;
 
@@ -37,23 +39,20 @@ public class CameraTransform : MonoBehaviour
         scrollValue = MinZoom;
     }
 
-    private void FixedUpdate()
+    private void LateUpdate()
     {
         if (Input.mouseScrollDelta.y != 0)
             ZoomChange(Input.mouseScrollDelta.y);
-        if (Input.GetMouseButtonDown(2)|| Input.GetMouseButtonDown(1))
-        {
-            Mouse1X = Input.mousePosition.x;
-            Mouse1Y = Input.mousePosition.y;
-        }
-        if (Input.GetMouseButton(2))
+
+        MouseX = Input.mousePosition.x;
+        MouseY = Input.mousePosition.y;
+        if (Input.GetMouseButton(1))
         {
             ChangeRotationCamera();
         }
         if (Input.GetMouseButton(1))
         {
-            ChangeX();
-            //ChangeY();
+            ChangeCameraPosition();
         }
     }
 
@@ -75,38 +74,40 @@ public class CameraTransform : MonoBehaviour
 
     private void ChangeRotationCamera()
     {
-        if (Mouse1X < Input.mousePosition.x)
+
+        if (xAxis < Input.mousePosition.x)
         {
             cameraMain.transform.Rotate(Vector3.up, rotationYSpeed * Time.deltaTime, Space.World);
+
+            xAxis = Input.mousePosition.x;
         }
-        else if (Mouse1X > Input.mousePosition.x)
+        else if (xAxis > Input.mousePosition.x)
         {
             cameraMain.transform.Rotate(Vector3.up, -1 * (rotationYSpeed * Time.deltaTime), Space.World);
+            xAxis = Input.mousePosition.x;
         }
-        Mouse1X = Input.mousePosition.x;
     }
-    private void ChangeX()
+    private void ChangeCameraPosition()
     {
-        Vector3 cameraPos = cameraMain.transform.position;
-        float xCamera = cameraMain.transform.position.x;
-        float zCamera = cameraMain.transform.position.z;
-        if (Mouse1X < Input.mousePosition.x)
+        Vector3 panMovement = Vector3.zero;
+        if (Input.GetKey(KeyCode.W) || Input.mousePosition.y >= Screen.height - ScreenEdgeBorderThickness)
         {
-            cameraPos += (Vector3.left* positionSpeed * Time.deltaTime);
+            panMovement += Vector3.forward * positionSpeed * Time.deltaTime;
         }
-        else if (Mouse1X > Input.mousePosition.x)
+        if (Input.GetKey(KeyCode.S) || Input.mousePosition.y <= ScreenEdgeBorderThickness)
         {
-            cameraPos += (Vector3.right * positionSpeed * Time.deltaTime);
+            panMovement -= Vector3.forward * positionSpeed * Time.deltaTime;
         }
-        if (Mouse1Y > Input.mousePosition.y)
+        if (Input.GetKey(KeyCode.A) || Input.mousePosition.x <= ScreenEdgeBorderThickness)
         {
-            cameraPos += (Vector3.forward * positionSpeed * Time.deltaTime);
+            panMovement += Vector3.left * positionSpeed * Time.deltaTime;
         }
-        else if (Mouse1Y < Input.mousePosition.y)
+        if (Input.GetKey(KeyCode.D) || Input.mousePosition.x >= Screen.width - ScreenEdgeBorderThickness)
         {
-            cameraPos += (Vector3.back * positionSpeed * Time.deltaTime);
+            panMovement += Vector3.right * positionSpeed * Time.deltaTime;
         }
-        cameraMain.transform.position = cameraPos;
+
+        transform.Translate(panMovement, Space.World);
     }
-    
+
 }
