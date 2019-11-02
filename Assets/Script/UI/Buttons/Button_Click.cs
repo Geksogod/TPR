@@ -5,6 +5,11 @@ using UnityEngine;
 [RequireComponent(typeof(Button))]
 public class Button_Click : MonoBehaviour
 {
+    public enum ButtonType
+    {
+        ChooseResources
+    }
+    public ButtonType buttonType;
     [SerializeField,Header("Animation Settings")]
     private float animTime = 5f;
     [SerializeField]
@@ -12,17 +17,26 @@ public class Button_Click : MonoBehaviour
     private float yourTime;
     private float scale;
     private bool finishHalfAnim =false;
+    public bool clicked = false;
 
 
     public void OnClick()
     {
-
-        StartCoroutine(AnimationCoroutine());
-
+        if (!clicked)
+        {
+            StartCoroutine(AnimationCoroutine());
+            switch (buttonType)
+            {
+                case ButtonType.ChooseResources:
+                    EventManager.ChangeCurrentEvent(EventManager.Events.ChooseResources);
+                    break;
+            }
+        }
     }
 
     private IEnumerator AnimationCoroutine()
     {
+        clicked = true;
         while (true)
         {
             if (yourTime <= animTime && !finishHalfAnim)
@@ -50,10 +64,10 @@ public class Button_Click : MonoBehaviour
                 scale = 0;
                 yourTime = 0;
                 finishHalfAnim = false;
-                Debug.Log("dasd");
                 break;
             }
         }
+        clicked = false;
         yield break;
     }
 }
