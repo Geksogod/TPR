@@ -6,6 +6,7 @@ public class EventManager : MonoBehaviour
 {
     public enum Events
     {
+        None,
         ChooseResources
     }
     public static Events CurrentEvent

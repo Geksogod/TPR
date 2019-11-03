@@ -52,12 +52,15 @@ public class MainResources : MonoBehaviour
     {
         if (EventManager.CurrentEvent == EventManager.Events.ChooseResources && !chosen)
         {
-            if (OutlineEnabled)
+            chosen = TaskManager.AddTask("Get Resurces", Task.TaskType.resourceGathering, this.gameObject, "Get this Wood");
+            if (chosen)
             {
-                outline.enabled = true;
-                outline.color = 0;
+                if (OutlineEnabled)
+                {
+                    outline.enabled = true;
+                    outline.color = 0;
+                }
             }
-            chosen = true;
         }
     }
     private void OnMouseExit()

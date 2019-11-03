@@ -18,8 +18,12 @@ public class Button_Click : MonoBehaviour
     private float scale;
     private bool finishHalfAnim =false;
     public bool clicked = false;
+    private Vector3 startScale = Vector3.zero;
 
-
+    private void Start()
+    {
+        startScale = this.gameObject.transform.localScale;
+    }
     public void OnClick()
     {
         if (!clicked)
@@ -60,7 +64,7 @@ public class Button_Click : MonoBehaviour
             }
             else
             {
-                this.transform.localScale = new Vector3(100, 100, 100);
+                this.transform.localScale = startScale;
                 scale = 0;
                 yourTime = 0;
                 finishHalfAnim = false;
