@@ -7,6 +7,7 @@ TagManager:
   - Food
   - EdibleFlora
   - Animal
+  - Task Board
   layers:
   - Default
   - TransparentFX

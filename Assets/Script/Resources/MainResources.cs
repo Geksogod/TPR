@@ -1,19 +1,31 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 public class MainResources : MonoBehaviour
 {
     public enum TypeResources
     {
+        None,
         Wood
     }
     [Header("Resources Settings")]
     public TypeResources typeResources;
     public int balance;
-    public float progress;
+    [HideInInspector]
+    public int maxBalance;
+    public float progress = 100;
     public bool chosen;
     [SerializeField, Header("Outline Settings")]
     private bool OutlineEnabled = true;
     private cakeslice.Outline outline;
+    [Header("Growning")]
+    public bool Finished = false;
+    private const float coeffcientGrowth = 12.4f;
+    private float startScale;
+    [SerializeField]
+    private float grownTime = 3f;
+    [SerializeField]
+    private float grownProgress = 0f;
     //private  outline;
     private void Awake()
     {
@@ -22,20 +34,40 @@ public class MainResources : MonoBehaviour
 
     void Start()
     {
+        startScale = transform.localScale.magnitude;
         outline.enabled = false;
-        balance = Random.Range(10, 20);
-        transform.localScale = ((float)balance / 10) * transform.localScale;
-        progress = 100;
+        ChangeBalance(Random.Range(10, 20));
+        maxBalance = balance;
+        StartCoroutine(Growth(grownTime));
     }
+
+    private void ChangeBalance(int val)
+    {
+        balance = balance + val;
+        if (!Finished&& startScale/2<= transform.localScale.magnitude)
+            transform.localScale = Vector3.one * balance / coeffcientGrowth;
+    }
+
 
     /// <summary>
     /// Give resources when progress <= 0 
     /// </summary>
     /// <returns>Resource</returns>
-    public TypeResources GiveResource()
+    public TypeResources GiveResource(float workStrange)
     {
-        progress = 100;
-        return typeResources;
+        progress -= workStrange;
+        if (progress <= 0)
+        {
+            progress = 100;
+            if (balance <= 0)
+            {
+                Finished = true;
+                StopAllCoroutines();
+            }
+            ChangeBalance(-1);
+            return typeResources;
+        }
+        return TypeResources.None;
     }
     private void OnMouseEnter()
     {
@@ -62,6 +94,11 @@ public class MainResources : MonoBehaviour
                 }
             }
         }
+        else
+        {
+            ChangeBalance(-1);
+            TaskManager.TaskProgresing(this.gameObject);
+        }
     }
     private void OnMouseExit()
     {
@@ -69,6 +106,21 @@ public class MainResources : MonoBehaviour
         {
             if (OutlineEnabled && !chosen)
                 outline.enabled = false;
+        }
+    }
+
+    private IEnumerator Growth(float growthTime)
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(growthTime);
+            grownProgress += Time.deltaTime;
+            if (grownProgress >= 100)
+            {
+                ChangeBalance(1);
+                grownProgress = 0;
+            }
+
         }
     }
 }
