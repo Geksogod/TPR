@@ -52,6 +52,7 @@ public class Human : MonoBehaviour
 
     }
 
+    
 
     public void Dead()
     {
@@ -70,7 +71,7 @@ public class Human : MonoBehaviour
     /// Reset all trigers && Set value this triger animation
     /// </summary>
     /// <param name="trigger">trigger name</param>
-    protected void SetAnimationTrigger(string trigger)
+    public void SetAnimationTrigger(string trigger)
     {
         if (animator != null)
         {

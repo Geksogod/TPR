@@ -8,6 +8,7 @@ TagManager:
   - EdibleFlora
   - Animal
   - Task Board
+  - Worker
   layers:
   - Default
   - TransparentFX
