@@ -8,7 +8,6 @@ using UnityEngine;
 public static class TaskManager
 {
     private static GameObject taskPanel;
-    private static int tasksCount = 0;
     private static List<Task> taskList = new List<Task>();
     private static int taskIndex;
     private static List<Type_Worker> workers = new List<Type_Worker>();
@@ -21,17 +20,11 @@ public static class TaskManager
     }
     private static bool ConfirmTask(Task task)
     {
+        tasks.Add(task, null);
         Type_Worker freeWorker = FindFreeWorker();
-        if (freeWorker != null)
-        {
-            freeWorker.SetTask(task);
-        }
-        tasks.Add(task, freeWorker);
-        taskList.Add(task);
-        Debug.Log("Task - " + task.taskName + " Confirm");
+        if (freeWorker!=null)
+        TakeTask(freeWorker);
         RedoText();
-        tasksCount = taskList.Count;
-
         return true;
     }
     public static bool AddTask(string TaskName, Task.TaskType _taskType, GameObject TaskTarget, string TaskDescription, float TaskProgress = 0, bool IsCompleted = false)
@@ -39,10 +32,10 @@ public static class TaskManager
         Task newTask = new Task(TaskName, _taskType, TaskTarget, TaskDescription, taskIndex++, TaskProgress, IsCompleted);
         return ConfirmTask(newTask);
     }
+
     public static void CanselTask(GameObject taskTarget)
     {
-        //to DO
-        taskList.Remove(taskList.Where(a => a.taskTarget == taskTarget).Single());
+        tasks.Remove(tasks.Keys.Where(target => target.taskTarget == taskTarget).Single());
         RedoText();
     }
 
@@ -52,18 +45,18 @@ public static class TaskManager
             taskPanel = GameObject.FindGameObjectWithTag("Task Board");
         taskPanel.GetComponentInChildren<TextMeshProUGUI>().text = string.Empty;
         taskPanel.GetComponentInChildren<TextMeshProUGUI>().text = "Task Board";
-        for (int i = 0; i < tasks.Count; i++)
+        foreach (var key in tasks.Keys)
         {
-            if (tasks[taskList[i]]==null)
-                taskPanel.GetComponentInChildren<TextMeshProUGUI>().text += "\n*" + taskList[i].taskDescription + " - " + taskList[i].taskProgress + '%';
+            if (tasks[key] == null)
+                taskPanel.GetComponentInChildren<TextMeshProUGUI>().text += "\n*" + key.taskDescription + " - " + key.taskProgress + '%';
             else
-                taskPanel.GetComponentInChildren<TextMeshProUGUI>().text += "<color=green>" + "\n*" + taskList[i].taskDescription + "<color=black>" + " - " + taskList[i].taskProgress + '%';
+                taskPanel.GetComponentInChildren<TextMeshProUGUI>().text += "<color=green>" + "\n*" + key.taskDescription + "<color=black>" + " - " + key.taskProgress + '%';
         }
     }
 
     public static void TaskProgresing(GameObject taskGameObject)
     {
-        Task currentTask = taskList.Where(target => target.taskTarget == taskGameObject).Single();
+        Task currentTask = tasks.Keys.Where(target => target.taskTarget == taskGameObject).Single();
         switch (currentTask.taskType)
         {
             case Task.TaskType.resourceGathering:
@@ -77,13 +70,33 @@ public static class TaskManager
                 break;
         }
         if (currentTask.taskProgress >= 100)
-        {
-            currentTask.isCompleted = true;
-            taskList.RemoveAt(currentTask.taskIndex);
-            taskGameObject.GetComponent<Outline>().enabled = false;
-        }
+            FinishTak(currentTask, taskGameObject);
         RedoText();
     }
+
+    private static void FinishTak(Task currentTask,GameObject taskGameObject)
+    {
+        currentTask.isCompleted = true;
+        Type_Worker worker = tasks[currentTask];
+        worker.haveTask = false;
+        tasks.Remove(currentTask);
+        TakeTask(worker);
+        taskGameObject.GetComponent<Outline>().enabled = false;
+    }
+
+    private static void TakeTask(Type_Worker worker)
+    {
+        if (tasks.Keys.Count > 0)
+            foreach (var key in tasks.Keys.ToList())
+            {
+                if (tasks[key] == null)
+                {
+                    tasks[key] = worker;
+                    worker.SetTask(key);
+                }
+            }
+    }
+
     private static Type_Worker FindFreeWorker()
     {
         for (int i = 0; i < workers.Count; i++)
@@ -91,7 +104,6 @@ public static class TaskManager
             Type_Worker worker = workers[i];
             if (!worker.haveTask)
             {
-                //workers[i].SetTask(task);
                 return workers[i];
             }
         }
