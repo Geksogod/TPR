@@ -26,6 +26,8 @@ public class MainResources : MonoBehaviour
     private float grownTime = 3f;
     [SerializeField]
     private float grownProgress = 0f;
+
+    public Item itemResources;
     //private  outline;
     private void Awake()
     {
@@ -34,6 +36,7 @@ public class MainResources : MonoBehaviour
 
     void Start()
     {
+        itemResources = new Item(typeResources.ToString(), typeResources);
         startScale = transform.localScale.magnitude;
         outline.enabled = false;
         ChangeBalance(Random.Range(10, 20));

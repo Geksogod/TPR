@@ -29,4 +29,9 @@ public class Type_Worker : MonoBehaviour
                 break;
         }
     }
+
+    public void DoTask()
+    {
+
+    }
 }

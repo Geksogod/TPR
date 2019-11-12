@@ -1,5 +1,6 @@
 ﻿using Unity.Collections;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class Human : MonoBehaviour
 {
@@ -34,6 +35,8 @@ public class Human : MonoBehaviour
     public GameObject leftHand;
     public GameObject rightHand;
     private Animator animator;
+
+    public List<Item> inventory = new List<Item>();
 
     private void Awake()
     {
@@ -82,5 +85,8 @@ public class Human : MonoBehaviour
         }
     }
 }
+
+
+
 
 
