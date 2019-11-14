@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-public class MainResources : MonoBehaviour
+public class MainResources : MonoBehaviour, ITouchListener
 {
     public enum TypeResources
     {
@@ -125,5 +125,20 @@ public class MainResources : MonoBehaviour
             }
 
         }
+    }
+
+    public void MouseEnter()
+    {
+        Debug.Log("MouseEnter");
+    }
+
+    public void MouseDown()
+    {
+        Debug.Log("MouseDown");
+    }
+
+    public void MouseExit()
+    {
+        Debug.Log("Exit");
     }
 }
