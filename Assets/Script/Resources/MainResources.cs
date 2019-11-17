@@ -47,7 +47,7 @@ public class MainResources : MonoBehaviour, ITouchListener
     private void ChangeBalance(int val)
     {
         balance = balance + val;
-        if (!Finished&& startScale/2<= transform.localScale.magnitude)
+        if (!Finished && startScale / 2 <= transform.localScale.magnitude)
             transform.localScale = Vector3.one * balance / coeffcientGrowth;
     }
 
@@ -72,45 +72,6 @@ public class MainResources : MonoBehaviour, ITouchListener
         }
         return TypeResources.None;
     }
-    private void OnMouseEnter()
-    {
-        if (EventManager.CurrentEvent == EventManager.Events.ChooseResources)
-        {
-            if (OutlineEnabled && !chosen)
-            {
-                outline.enabled = true;
-                outline.color = 1;
-            }
-        }
-    }
-    private void OnMouseDown()
-    {
-        if (EventManager.CurrentEvent == EventManager.Events.ChooseResources && !chosen)
-        {
-            chosen = TaskManager.AddTask("Get Resurces", Task.TaskType.resourceGathering, this.gameObject, "Get this Wood");
-            if (chosen)
-            {
-                if (OutlineEnabled)
-                {
-                    outline.enabled = true;
-                    outline.color = 0;
-                }
-            }
-        }
-        else
-        {
-            ChangeBalance(-1);
-            TaskManager.TaskProgresing(this.gameObject);
-        }
-    }
-    private void OnMouseExit()
-    {
-        if (EventManager.CurrentEvent == EventManager.Events.ChooseResources)
-        {
-            if (OutlineEnabled && !chosen)
-                outline.enabled = false;
-        }
-    }
 
     private IEnumerator Growth(float growthTime)
     {
@@ -129,16 +90,43 @@ public class MainResources : MonoBehaviour, ITouchListener
 
     public void MouseEnter()
     {
-        Debug.Log("MouseEnter");
+        if (EventManager.CurrentEvent == EventManager.Events.ChooseResources)
+        {
+            //if (OutlineEnabled && !chosen)
+            //{
+            //    outline.enabled = true;
+            //    outline.color = 1;
+            //}
+        }
     }
 
     public void MouseDown()
     {
-        Debug.Log("MouseDown");
+        if (EventManager.CurrentEvent == EventManager.Events.ChooseResources && !chosen)
+        {
+            chosen = TaskManager.AddTask("Get Resurces", Task.TaskType.resourceGathering, this.gameObject, "Get this Wood");
+            if (chosen)
+            {
+                //if (OutlineEnabled)
+                //{
+                //    outline.enabled = true;
+                //    outline.color = 0;
+                //}
+            }
+        }
+        else
+        {
+            ChangeBalance(-1);
+            TaskManager.TaskProgresing(this.gameObject);
+        }
     }
 
     public void MouseExit()
     {
-        Debug.Log("Exit");
+        if (EventManager.CurrentEvent == EventManager.Events.ChooseResources)
+        {
+            //if (OutlineEnabled && !chosen)
+            //    outline.enabled = false;
+        }
     }
 }
