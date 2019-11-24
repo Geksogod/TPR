@@ -4,9 +4,9 @@ using System.Collections.Generic;
 
 public class Human : MonoBehaviour
 {
-    [Header("Human Settings"),SerializeField]
+    [Header("Human Settings"), SerializeField]
     private int health;
-    [Range(1,100)]
+    [Range(1, 100)]
     public int speed;
     public int Health
     {
@@ -22,7 +22,7 @@ public class Human : MonoBehaviour
             if (health <= 0)
                 Dead();
         }
-    }   
+    }
 
     public enum HumanType
     {
@@ -35,11 +35,15 @@ public class Human : MonoBehaviour
     public GameObject leftHand;
     public GameObject rightHand;
     private Animator animator;
+    public Collider coverage;
+    private const float animTimer = 1f;
+    private float myAnimTimer = 1f;
 
     public List<Item> inventory = new List<Item>();
 
     private void Awake()
     {
+        coverage = this.gameObject.GetComponent<Collider>();
         animator = this.gameObject.GetComponent<Animator>();
     }
     // Start is called before the first frame update
@@ -47,15 +51,9 @@ public class Human : MonoBehaviour
     {
         Customization();
         health = 100;
+        myAnimTimer = animTimer;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
-    
 
     public void Dead()
     {
@@ -67,7 +65,14 @@ public class Human : MonoBehaviour
     public void Customization()
     {
         СustomizationSystem cusmomizator = GameObject.Find("СustomizationSystem").GetComponent<СustomizationSystem>();
-        cusmomizator.Customization(ref head, ref body, ref leftHand, ref rightHand, humanType);
+        //cusmomizator.Customization(ref head, ref body, ref leftHand, ref rightHand, humanType);
+        //leftHand = cusmomizator.GetLeftHand(humanType);
+        head.SetActive(false);
+        head = head!=null?Instantiate(cusmomizator.GetHead(humanType),head.transform.parent):null;     
+        body.SetActive(false);  
+        body = body!=null?Instantiate(cusmomizator.GetBody(humanType),body.transform.parent):null;
+        rightHand = rightHand!=null?Instantiate(cusmomizator.GetRightHand(humanType),rightHand.transform):null;
+        leftHand = leftHand!=null?Instantiate(cusmomizator.GetLeftHand(humanType),leftHand.transform):null;
     }
 
     /// <summary>
@@ -81,6 +86,12 @@ public class Human : MonoBehaviour
             foreach (AnimatorControllerParameter p in animator.parameters)
                 if (p.type == AnimatorControllerParameterType.Trigger)
                     animator.ResetTrigger(p.name);
+            animator.SetTrigger("Idle");
+            while (myAnimTimer <= 0)
+            {
+                myAnimTimer -= Time.deltaTime;
+            }
+            myAnimTimer = animTimer;
             animator.SetTrigger(trigger);
         }
     }

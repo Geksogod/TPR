@@ -42,6 +42,29 @@ public class СustomizationSystem : MonoBehaviour
         }
         return null;
     }
+    private GameObject SetHead_(Human.HumanType type)
+    {
+        int ArrayIndex = -1;
+        for (int i = 0; i < customization.Length; i++)
+        {
+            if (customization[i].type == type)
+            {
+                ArrayIndex = i;
+            }
+        }
+        if (ArrayIndex != -1 && customization[0].head.Length >= 1)
+        {
+            int index = Random.Range(0, customization[ArrayIndex].head.Length);
+            for (int i = 0; i < customization[ArrayIndex].head.Length; i++)
+            {
+                if (i == index)
+                {
+                    return customization[ArrayIndex].head[i];
+                }
+            }
+        }
+        return null;
+    }
 
     private Mesh SetBody(Human.HumanType type)
     {
@@ -70,7 +93,69 @@ public class СustomizationSystem : MonoBehaviour
         }
         return null;
     }
+    private GameObject SetBody_(Human.HumanType type)
+    {
+        int ArrayIndex = -1;
+        for (int i = 0; i < customization.Length; i++)
+        {
+            if (customization[i].type == type)
+            {
+                ArrayIndex = i;
+            }
+        }
+        if (ArrayIndex != -1 && customization[0].body.Length >= 1)
+        {
+            int index = Random.Range(0, customization[ArrayIndex].body.Length);
+            for (int i = 0; i < customization[ArrayIndex].body.Length; i++)
+            {
+                if (i == index)
+                {
+                    return customization[ArrayIndex].body[i];
+                }
+
+            }
+        }
+        return null;
+    }
     private Mesh SetLeftHand(Human.HumanType type)
+    {
+        int ArrayIndex = -1;
+        Mesh leftHandMesh = null;
+        Material leftHandMaterial = null;
+        for (int i = 0; i < customization.Length; i++)
+        {
+            if (customization[i].type == type)
+            {
+                ArrayIndex = i;
+            }
+        }
+        if (ArrayIndex != -1 && customization[0].leftHand.Length >= 1)
+        {
+            int index = Random.Range(0, customization[ArrayIndex].leftHand.Length);
+            for (int i = 0; i < customization[ArrayIndex].leftHand.Length; i++)
+            {
+                if (i == index)
+                {
+                    if (customization[ArrayIndex].leftHand[i].GetComponent<SkinnedMeshRenderer>() != null)
+                    {
+                        leftHandMesh = customization[ArrayIndex].leftHand[i].GetComponent<SkinnedMeshRenderer>().sharedMesh;
+                        leftHandMaterial = customization[ArrayIndex].leftHand[i].GetComponent<SkinnedMeshRenderer>().material;
+                    }
+                    else if (customization[ArrayIndex].leftHand[i].GetComponent<MeshFilter>() != null && customization[ArrayIndex].leftHand[i].GetComponent<MeshRenderer>())
+                    {
+                        leftHandMesh = customization[ArrayIndex].leftHand[i].GetComponent<MeshFilter>().sharedMesh;
+                        leftHandMaterial = customization[ArrayIndex].leftHand[i].GetComponent<MeshRenderer>().material;
+                    }
+
+                    if (leftHandMesh != null)
+                        return leftHandMesh;
+                }
+
+            }
+        }
+        return null;
+    }
+    private GameObject SetLeftHand_(Human.HumanType type)
     {
         int ArrayIndex = -1;
         for (int i = 0; i < customization.Length; i++)
@@ -87,10 +172,7 @@ public class СustomizationSystem : MonoBehaviour
             {
                 if (i == index)
                 {
-                    if (customization[ArrayIndex].leftHand[i].GetComponent<SkinnedMeshRenderer>().sharedMesh != null)
-                        return customization[ArrayIndex].leftHand[i].GetComponent<SkinnedMeshRenderer>().sharedMesh;
-                    else
-                        return customization[ArrayIndex].leftHand[i].GetComponent<MeshFilter>().sharedMesh;
+                    return customization[ArrayIndex].leftHand[i];
                 }
 
             }
@@ -125,12 +207,37 @@ public class СustomizationSystem : MonoBehaviour
         }
         return null;
     }
+    private GameObject SetRightHand_(Human.HumanType type)
+    {
+        int ArrayIndex = -1;
+        for (int i = 0; i < customization.Length; i++)
+        {
+            if (customization[i].type == type)
+            {
+                ArrayIndex = i;
+            }
+        }
+        if (ArrayIndex != -1 && customization[0].rightHand.Length >= 1)
+        {
+            int index = Random.Range(0, customization[ArrayIndex].rightHand.Length);
+            for (int i = 0; i < customization[ArrayIndex].rightHand.Length; i++)
+            {
+                if (i == index)
+                {
+                    return customization[ArrayIndex].rightHand[i];
+
+                }
+
+            }
+        }
+        return null;
+    }
 
 
     /// <summary>
     /// Customization you charecter
     /// </summary>
-    public void Customization(ref GameObject head, ref GameObject body, ref GameObject leftHand, ref GameObject rightHand,Human.HumanType humanType)
+    public void Customization(ref GameObject head, ref GameObject body, ref GameObject leftHand, ref GameObject rightHand, Human.HumanType humanType)
     {
         if (head != null)
         {
@@ -151,7 +258,10 @@ public class СustomizationSystem : MonoBehaviour
             if (leftHand.GetComponent<SkinnedMeshRenderer>() != null)
                 leftHand.GetComponent<SkinnedMeshRenderer>().sharedMesh = GameObject.Find("СustomizationSystem").GetComponent<СustomizationSystem>().SetLeftHand(humanType);
             else if (leftHand.GetComponent<MeshFilter>() != null)
+            {
                 leftHand.GetComponent<MeshFilter>().sharedMesh = GameObject.Find("СustomizationSystem").GetComponent<СustomizationSystem>().SetLeftHand(humanType);
+            }
+            Debug.Log("Left Hand");
         }
         if (rightHand != null)
         {
@@ -187,5 +297,21 @@ public class СustomizationSystem : MonoBehaviour
             else if (Hand.GetComponent<MeshFilter>() != null)
                 Hand.GetComponent<MeshFilter>().sharedMesh = GameObject.Find("СustomizationSystem").GetComponent<СustomizationSystem>().SetRightHand(humanType);
         }
+    }
+    public GameObject GetHead(Human.HumanType humanType)
+    {
+        return SetHead_(humanType);
+    }
+    public GameObject GetBody(Human.HumanType humanType)
+    {
+        return SetBody_(humanType);
+    }
+    public GameObject GetRightHand(Human.HumanType humanType)
+    {
+        return SetRightHand_(humanType);
+    }
+    public GameObject GetLeftHand(Human.HumanType humanType)
+    {
+        return SetLeftHand_(humanType);
     }
 }

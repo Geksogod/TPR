@@ -9,12 +9,15 @@ public class Human_Move : MonoBehaviour
     public Vector3 nextPosition = Vector3.zero;
     private NavMeshAgent navMesh;
     private Human human;
+    private HumanType humanType;
     private float offset;
+    public bool arrived = false;
 
     private void Awake()
     {
         navMesh = this.gameObject.GetComponent<NavMeshAgent>() ?? gameObject.AddComponent<NavMeshAgent>();
         human = this.gameObject.GetComponent<Human>();
+        humanType = this.gameObject.GetComponent<HumanType>();
     }
 
     public void SetMovePosition(Move_Position position,float Offset)
@@ -32,6 +35,7 @@ public class Human_Move : MonoBehaviour
                 navMesh.SetDestination(nextPosition);
                 navMesh.isStopped = false;
                 stop = false;
+                arrived = false;
                 offset = Offset;
                 StartCoroutine(DesiredVelocity());
             }
@@ -49,7 +53,9 @@ public class Human_Move : MonoBehaviour
         }
         stop = true;
         navMesh.isStopped = true;
+        arrived = true;
         human.SetAnimationTrigger("Idle");
+        humanType.doTask = arrived;
         StopCoroutine(DesiredVelocity());
     }
 }

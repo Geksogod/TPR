@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using cakeslice;
+using System.Collections;
 using UnityEngine;
 
 public class MainResources : MonoBehaviour, ITouchListener
@@ -15,9 +16,6 @@ public class MainResources : MonoBehaviour, ITouchListener
     public int maxBalance;
     public float progress = 100;
     public bool chosen;
-    [SerializeField, Header("Outline Settings")]
-    private bool OutlineEnabled = true;
-    private cakeslice.Outline outline;
     [Header("Growning")]
     public bool Finished = false;
     private const float coeffcientGrowth = 12.4f;
@@ -27,18 +25,15 @@ public class MainResources : MonoBehaviour, ITouchListener
     [SerializeField]
     private float grownProgress = 0f;
 
-    public Item itemResources;
-    //private  outline;
-    private void Awake()
-    {
-        outline = gameObject.GetComponent<cakeslice.Outline>();
-    }
+    public Resource itemResources;
+    
 
     void Start()
     {
-        itemResources = new Item(typeResources.ToString(), typeResources);
+        this.gameObject.GetComponent<Outline>().enabled = false;
+        itemResources = new Resource(typeResources.ToString(), typeResources);
+        Debug.Log(itemResources.typeResources);
         startScale = transform.localScale.magnitude;
-        outline.enabled = false;
         ChangeBalance(Random.Range(10, 20));
         maxBalance = balance;
         StartCoroutine(Growth(grownTime));
@@ -88,31 +83,12 @@ public class MainResources : MonoBehaviour, ITouchListener
         }
     }
 
-    public void MouseEnter()
-    {
-        if (EventManager.CurrentEvent == EventManager.Events.ChooseResources)
-        {
-            //if (OutlineEnabled && !chosen)
-            //{
-            //    outline.enabled = true;
-            //    outline.color = 1;
-            //}
-        }
-    }
 
     public void MouseDown()
     {
         if (EventManager.CurrentEvent == EventManager.Events.ChooseResources && !chosen)
         {
-            chosen = TaskManager.AddTask("Get Resurces", Task.TaskType.resourceGathering, this.gameObject, "Get this Wood");
-            if (chosen)
-            {
-                //if (OutlineEnabled)
-                //{
-                //    outline.enabled = true;
-                //    outline.color = 0;
-                //}
-            }
+            chosen = TaskManager.AddTask("Get Resurces", Task.TaskType.resourceGathering, this.gameObject, "Get this Wood");         
         }
         else
         {
@@ -121,12 +97,11 @@ public class MainResources : MonoBehaviour, ITouchListener
         }
     }
 
+    public void MouseEnter()
+    {
+    }
+
     public void MouseExit()
     {
-        if (EventManager.CurrentEvent == EventManager.Events.ChooseResources)
-        {
-            //if (OutlineEnabled && !chosen)
-            //    outline.enabled = false;
-        }
     }
 }
