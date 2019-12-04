@@ -32,7 +32,7 @@ public class MainResources : MonoBehaviour, ITouchListener
     {
         this.gameObject.GetComponent<Outline>().enabled = false;
         itemResources = new Resource(typeResources.ToString(), typeResources);
-        Debug.Log(itemResources.typeResources);
+//        Debug.Log(itemResources.typeResources);
         startScale = transform.localScale.magnitude;
         ChangeBalance(Random.Range(10, 20));
         maxBalance = balance;
