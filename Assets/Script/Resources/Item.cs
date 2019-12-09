@@ -1,46 +1,69 @@
 ﻿using System;
+using Unity.Collections;
 using UnityEngine;
 using static MainResources;
 
-[Serializable]
-public abstract class Item 
+[System.Serializable]
+public abstract class Item
 {
+    [SerializeField, ReadOnly]
     protected string name;
     protected float durability;
-    public enum ItemType
-    {
-        WorkTool,
-        Resource
-    }
-    protected ItemType itemType;
-    protected TypeResources typeResources;
-    protected float benefit;
+    protected GameObject itemGameObject;
+    protected Mesh itemMesh;
+    protected bool isBroken;
 
-    /// <summary>
-    /// Resurces
-    /// </summary>
-    /// <param name="Name"></param>
-    /// <param name="ItemType"></param>
-    protected Item(string Name, TypeResources TypeResources)
-    {
-        name = Name;
-        typeResources = TypeResources;
+
+    public void Repear(float repearValue,Item item){
+        item.durability+=repearValue;
+        if(item.durability>100)
+            item.durability=100;
     }
-    /// <summary>
-    /// Item (you can't create Reasurces)
-    /// </summary>
-    /// <param name="Name"></param>
-    /// <param name="ItemType"></param>
-    /// <param name="Durability"></param>
-    /// <param name="Benefit"></param>
-    protected Item(string Name, ItemType ItemType, float Durability, float Benefit)
+
+    public void BringDamage(float damage, Item item)
     {
-        if (ItemType == ItemType.Resource)
-            return;
-        name = Name;
-        itemType = ItemType;
-        durability = Durability;
-        benefit = Benefit;
+        item.durability -= damage;
+        if (item.durability <= 0)
+            item.isBroken = true;
+            
+    }
+    public string GetName(Item item)
+    {
+        return item.name;
+    }
+    public bool HasGameObject(Item item)
+    {
+        return item.itemGameObject != null;
+    }
+    public GameObject GetGameObject(Item item)
+    {
+        if (HasGameObject(item))
+        {
+            Debug.LogError("This item have'nt GameObject. Use item.HasGameObject()");
+            return null;
+        }
+        return item.itemGameObject;
+    }
+    public float GetDurability(Item item)
+    {
+        return item.durability;
+    }
+    public bool IsBroken(Item item)
+    {
+        return item.isBroken;
+    }
+    public bool HasMesh(Item item)
+    {
+        return item.itemMesh != null;
+    }
+    public Mesh GetMesh(Item item)
+    {
+        if (!HasMesh(item))
+        {
+            Debug.LogError("This item have'nt Mesh. Use item.HasMash()");
+            return null;
+        }
+        return item.itemMesh;
     }
 }
 

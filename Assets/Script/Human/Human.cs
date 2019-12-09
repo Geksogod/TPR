@@ -66,9 +66,7 @@ public class Human : MonoBehaviour
     {
         СustomizationSystem cusmomizator = GameObject.Find("СustomizationSystem").GetComponent<СustomizationSystem>();
         head.GetComponent<MeshFilter>().mesh = cusmomizator.GetHead(humanType);
-        body.GetComponent<SkinnedMeshRenderer>().sharedMesh = cusmomizator.GetBody(humanType);
         rightHand = rightHand!=null?Instantiate(cusmomizator.GetRightHand(humanType),rightHand.transform):null;
-        leftHand = leftHand!=null?Instantiate(cusmomizator.GetLeftHand(humanType),leftHand.transform.position,Quaternion.Euler (0f, 75, -90f),leftHand.transform):null;
     }
 
     /// <summary>

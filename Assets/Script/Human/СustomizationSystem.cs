@@ -145,9 +145,13 @@ public class СustomizationSystem : MonoBehaviour
     {
         return SetHead_(humanType);
     }
-    public Mesh GetBody(Human.HumanType humanType)
+    public Сlothes GetBody(Human.HumanType humanType)
     {
-        return SetBody_(humanType);
+        if(humanType==Human.HumanType.Worker){
+            Сlothes clothes = new Сlothes("Worker Cloth",20,Item.PrestigeType.Cheap,SetBody_(humanType));
+            return clothes;
+        }
+        return null;
     }
     public GameObject GetRightHand(Human.HumanType humanType)
     {
