@@ -4,13 +4,8 @@ using UnityEngine;
 
 public class MainResources : MonoBehaviour, ITouchListener
 {
-    public enum TypeResources
-    {
-        None,
-        Wood
-    }
     [Header("Resources Settings")]
-    public TypeResources typeResources;
+    public Resource resources;
     public int balance;
     [HideInInspector]
     public int maxBalance;
@@ -31,8 +26,7 @@ public class MainResources : MonoBehaviour, ITouchListener
     void Start()
     {
         this.gameObject.GetComponent<Outline>().enabled = false;
-        itemResources = new Resource(typeResources.ToString(), typeResources);
-//        Debug.Log(itemResources.typeResources);
+        resources = new Resource("Wood",Resource.TypeResources.wood);
         startScale = transform.localScale.magnitude;
         ChangeBalance(Random.Range(10, 20));
         maxBalance = balance;
@@ -51,9 +45,10 @@ public class MainResources : MonoBehaviour, ITouchListener
     /// Give resources when progress <= 0 
     /// </summary>
     /// <returns>Resource</returns>
-    public TypeResources GiveResource(float workStrange)
+    public Resource GiveResource(float workStrange)
     {
         progress -= workStrange;
+        Debug.Log(progress);
         if (progress <= 0)
         {
             progress = 100;
@@ -63,9 +58,10 @@ public class MainResources : MonoBehaviour, ITouchListener
                 StopAllCoroutines();
             }
             ChangeBalance(-1);
-            return typeResources;
+            TaskManager.TaskProgresing(this.gameObject);
+            return resources;
         }
-        return TypeResources.None;
+        return null;
     }
 
     private IEnumerator Growth(float growthTime)
@@ -89,11 +85,6 @@ public class MainResources : MonoBehaviour, ITouchListener
         if (EventManager.CurrentEvent == EventManager.Events.ChooseResources && !chosen)
         {
             chosen = TaskManager.AddTask("Get Resurces", Task.TaskType.resourceGathering, this.gameObject, "Get this Wood");         
-        }
-        else
-        {
-            ChangeBalance(-1);
-            TaskManager.TaskProgresing(this.gameObject);
         }
     }
 

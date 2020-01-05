@@ -4,7 +4,7 @@ using UnityEngine;
 using static MainResources;
 
 [System.Serializable]
-public abstract class Item
+public  class Item
 {
     [SerializeField, ReadOnly]
     protected string name;

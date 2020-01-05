@@ -41,6 +41,7 @@ public class Human : MonoBehaviour
     private const float animTimer = 1f;
     private float myAnimTimer = 1f;
 
+    [SerializeField]
     public List<Item> inventory = new List<Item>();
 
     private void Awake()
@@ -98,7 +99,8 @@ public class Human : MonoBehaviour
         }
     }
 
-    public bool IsDead(){
+    public bool IsDead()
+    {
         return isDead;
     }
 }
