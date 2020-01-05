@@ -18,6 +18,10 @@ public static class TaskManager
     {
         workers.Add(worker);
     }
+    public static void RemoveWorker(Type_Worker worker)
+    {
+        workers.Remove(worker);
+    }
     private static bool ConfirmTask(Task task)
     {
         tasks.Add(task, null);

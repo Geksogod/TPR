@@ -35,7 +35,9 @@ public class Human : MonoBehaviour
     public GameObject leftHand;
     public GameObject rightHand;
     private Animator animator;
-    public Collider coverage;
+    private Collider coverage;
+
+    private bool isDead = false;
     private const float animTimer = 1f;
     private float myAnimTimer = 1f;
 
@@ -57,8 +59,11 @@ public class Human : MonoBehaviour
 
     public void Dead()
     {
+        if (health > 0)
+            health = 0;
         int deadTriger = Random.Range(0, 2);
         speed = 0;
+        isDead = true;
         SetAnimationTrigger("Dead_" + deadTriger.ToString());
     }
 
@@ -66,7 +71,10 @@ public class Human : MonoBehaviour
     {
         СustomizationSystem cusmomizator = GameObject.Find("СustomizationSystem").GetComponent<СustomizationSystem>();
         head.GetComponent<MeshFilter>().mesh = cusmomizator.GetHead(humanType);
-        rightHand = rightHand!=null?Instantiate(cusmomizator.GetRightHand(humanType),rightHand.transform):null;
+        Сlothes bodyClothes = cusmomizator.GetBody(humanType);
+        inventory.Add(bodyClothes);
+        body.GetComponent<SkinnedMeshRenderer>().sharedMesh = bodyClothes.GetMesh();
+        rightHand = rightHand != null ? Instantiate(cusmomizator.GetRightHand(humanType), rightHand.transform) : null;
     }
 
     /// <summary>
@@ -88,6 +96,10 @@ public class Human : MonoBehaviour
             myAnimTimer = animTimer;
             animator.SetTrigger(trigger);
         }
+    }
+
+    public bool IsDead(){
+        return isDead;
     }
 }
 

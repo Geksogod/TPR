@@ -147,9 +147,10 @@ public class СustomizationSystem : MonoBehaviour
     }
     public Сlothes GetBody(Human.HumanType humanType)
     {
-        if(humanType==Human.HumanType.Worker){
-            Сlothes clothes = new Сlothes("Worker Cloth",20,Item.PrestigeType.Cheap,SetBody_(humanType));
-            return clothes;
+        switch (humanType){
+            case Human.HumanType.Worker:
+                Сlothes clothes = new Сlothes("Worker Robe",100,1,10,Сlothes.ClothesType.Body,SetBody_(humanType));
+                return clothes;
         }
         return null;
     }

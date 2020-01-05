@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Type_Worker : HumanType
 {
+
     public bool haveTask;
     public Task currentTask;
     private Human_Move move;
@@ -19,6 +20,11 @@ public class Type_Worker : HumanType
         TaskManager.AddWorker(this);
     }
 
+    private void Update() {
+        if(human.IsDead()){
+            TaskManager.RemoveWorker(this);
+        }
+    }
     public void SetTask(Task task)
     {
         currentTask = task;

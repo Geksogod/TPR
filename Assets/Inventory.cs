@@ -21,8 +21,7 @@ public class Inventory : MonoBehaviour
         //SetItemToLeftHand(customizeSystem.GetLeftHand(human.humanType));
     }
     public void ClotheClothes(Сlothes clothes){
-        clothedCloth  = clothes;        
-        human.body.GetComponent<SkinnedMeshRenderer>().sharedMesh = clothedCloth.itemMesh;
+        clothedCloth  = clothes;  
     }
 
     private void SetItemToLeftHand(Item item){

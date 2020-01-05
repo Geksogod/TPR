@@ -56,14 +56,9 @@ public abstract class Item
     {
         return item.itemMesh != null;
     }
-    public Mesh GetMesh(Item item)
+    public Mesh GetMesh()
     {
-        if (!HasMesh(item))
-        {
-            Debug.LogError("This item have'nt Mesh. Use item.HasMash()");
-            return null;
-        }
-        return item.itemMesh;
+        return itemMesh;
     }
 }
 
