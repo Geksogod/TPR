@@ -64,7 +64,7 @@ public static class TaskManager
         switch (currentTask.taskType)
         {
             case Task.TaskType.resourceGathering:
-                MainResources mainResources = taskGameObject.GetComponent<MainResources>();
+                ResourceContainer mainResources = taskGameObject.GetComponent<ResourceContainer>();
                 if (mainResources.balance > 0)
                     currentTask.taskProgress = (100 / mainResources.maxBalance) * (mainResources.maxBalance - mainResources.balance);
                 else

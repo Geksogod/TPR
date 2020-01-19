@@ -1,17 +1,17 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static MainResources;
 
 public class Resource : Item
 {
-    public enum TypeResources{
-        wood
-    }
-    public TypeResources typeResources;
-    public Resource( string Name,TypeResources TypeResources)
+    private ResourcesData resourcesData;
+    [SerializeField]
+    public Resource(ResourcesData resources)
     {
-        name = Name;
-        typeResources = TypeResources;
+        name = resources.name;
+        resourcesData = resources;
+    }
+    public ResourcesData.TypeResources GetResourcesType(){
+        return resourcesData.typeResources;
     }
 }

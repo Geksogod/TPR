@@ -1,7 +1,6 @@
 ﻿using System;
 using Unity.Collections;
 using UnityEngine;
-using static MainResources;
 
 [System.Serializable]
 public  class Item
@@ -27,9 +26,9 @@ public  class Item
             item.isBroken = true;
             
     }
-    public string GetName(Item item)
+    public string GetName()
     {
-        return item.name;
+        return this.name;
     }
     public bool HasGameObject(Item item)
     {

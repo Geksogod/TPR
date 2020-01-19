@@ -40,14 +40,12 @@ public class Human : MonoBehaviour
     private bool isDead = false;
     private const float animTimer = 1f;
     private float myAnimTimer = 1f;
-
-    [SerializeField]
-    public List<Item> inventory = new List<Item>();
-
+    public InventorySystem inventory;
     private void Awake()
     {
         coverage = this.gameObject.GetComponent<Collider>();
         animator = this.gameObject.GetComponent<Animator>();
+        inventory = this.gameObject.GetComponent<InventorySystem>();
     }
     // Start is called before the first frame update
     void Start()
@@ -56,8 +54,7 @@ public class Human : MonoBehaviour
         health = 100;
         myAnimTimer = animTimer;
     }
-
-
+    
     public void Dead()
     {
         if (health > 0)
@@ -67,13 +64,12 @@ public class Human : MonoBehaviour
         isDead = true;
         SetAnimationTrigger("Dead_" + deadTriger.ToString());
     }
-
     public void Customization()
     {
         СustomizationSystem cusmomizator = GameObject.Find("СustomizationSystem").GetComponent<СustomizationSystem>();
         head.GetComponent<MeshFilter>().mesh = cusmomizator.GetHead(humanType);
         Сlothes bodyClothes = cusmomizator.GetBody(humanType);
-        inventory.Add(bodyClothes);
+        inventory.AddItem(bodyClothes);
         body.GetComponent<SkinnedMeshRenderer>().sharedMesh = bodyClothes.GetMesh();
         rightHand = rightHand != null ? Instantiate(cusmomizator.GetRightHand(humanType), rightHand.transform) : null;
     }

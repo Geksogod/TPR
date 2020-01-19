@@ -58,7 +58,7 @@ public class OutlineListener : MonoBehaviour
         switch (EventManager.CurrentEvent)
         {
             case EventManager.Events.ChooseResources:
-                if (gameObject.GetComponent<MainResources>())
+                if (gameObject.GetComponent<ResourceContainer>())
                     return true;
                 break;
         }

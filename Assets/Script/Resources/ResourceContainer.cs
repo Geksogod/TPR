@@ -2,9 +2,11 @@
 using System.Collections;
 using UnityEngine;
 
-public class MainResources : MonoBehaviour, ITouchListener
+public class ResourceContainer : MonoBehaviour, ITouchListener
 {
     [Header("Resources Settings")]
+    [SerializeField]
+    private ResourcesData resourcesData;
     public Resource resources;
     public int balance;
     [HideInInspector]
@@ -26,7 +28,7 @@ public class MainResources : MonoBehaviour, ITouchListener
     void Start()
     {
         this.gameObject.GetComponent<Outline>().enabled = false;
-        resources = new Resource("Wood",Resource.TypeResources.wood);
+        resources = new Resource(resourcesData);
         startScale = transform.localScale.magnitude;
         ChangeBalance(Random.Range(10, 20));
         maxBalance = balance;
