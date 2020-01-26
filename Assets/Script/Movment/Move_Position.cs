@@ -11,4 +11,8 @@ public class Move_Position
         this.position = Position;
         this.targetPosition = TargetPosition;
     }
+    public Move_Position(GameObject TargetPosition){
+        this.targetPosition = TargetPosition;
+        this.position = TargetPosition.transform.position;
+    }
 }

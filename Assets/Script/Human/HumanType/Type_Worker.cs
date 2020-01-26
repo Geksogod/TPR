@@ -5,16 +5,20 @@ using UnityEngine;
 public class Type_Worker : HumanType
 {
 
+    private Coroutine taskProcesing;
     private bool isTaskDoing;
     public bool haveTask;
     [SerializeField]
     private bool taskIsPause;
     public Task currentTask;
     private Human_Move move;
-    private bool isCoverageArea;
     private Human human;
     [SerializeField]
     private float workStrange;
+    [SerializeField]
+    private Building storage;
+    [SerializeField]
+    private bool isGoToStorage;
     private void Awake()
     {
         move = this.gameObject.GetComponent<Human_Move>() ?? this.gameObject.AddComponent<Human_Move>();
@@ -36,14 +40,30 @@ public class Type_Worker : HumanType
             StartDoTask();
         }
 
-        if (currentTask.taskType == Task.TaskType.resourceGathering&&human.inventory.isFull())
+        if (currentTask.taskType == Task.TaskType.resourceGathering && human.inventory.isFull())
         {
-            SetTaskPause(true);
-            //TODO find warehouse
+            if (!taskIsPause)
+            {
+                SetTaskPause(true);
+                storage = HumanHelper.FindNearBuilding(Building.BuildingType.Storage, transform.position);
+                Move_Position pos = new Move_Position(storage.gameObject);
+                move.SetMovePosition(pos, storage.gameObject.GetComponent<Collider>().bounds.extents.x * 2);
+                isGoToStorage= true;
+                StopCoroutine(taskProcesing);
+            }
+            else
+            {
+                if (move.arrived&&isGoToStorage)
+                {
+                    GetComponent<InventorySystem>().GetAllResorces(storage.GetComponent<InventorySystem>());
+                    isGoToStorage = false;
+                }
+            }
         }
-        else if (currentTask.taskType == Task.TaskType.resourceGathering&&!human.inventory.isFull())
+        else if (currentTask!=null&&taskIsPause&&currentTask.taskType == Task.TaskType.resourceGathering && !isGoToStorage)
         {
             SetTaskPause(false);
+           // SetTask(currentTask);
         }
 
     }
@@ -71,7 +91,7 @@ public class Type_Worker : HumanType
     {
         isTaskDoing = true;
         human.SetAnimationTrigger("Work");
-        StartCoroutine(DoingTask(3));
+        taskProcesing = StartCoroutine(DoingTask(3));
     }
 
     private IEnumerator DoingTask(float time)
@@ -89,8 +109,10 @@ public class Type_Worker : HumanType
                     Debug.Log("Inventory add Wood");
                 }
             }
-            else if(taskIsPause){
+            else
+            {
                 human.SetAnimationTrigger("Idle");
+                //StopCoroutine(DoingTask(3));
             }
 
         }

@@ -28,7 +28,6 @@ public class Human_Move : MonoBehaviour
                 nextPosition = position.position;
             else
                 nextPosition = position.targetPosition.transform.position;
-            Debug.Log(nextPosition);
             if (!nextPosition.Equals(Vector3.zero))
             {
                 human.SetAnimationTrigger("Walk");

@@ -9,8 +9,8 @@ public abstract class HumanType : MonoBehaviour
     {
         if (doTask)
         {
-            StartDoTask();
-            doTask = false;
+            //StartDoTask();
+            //doTask = false;
         }
     }
     protected abstract void DoTask();
