@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class InventorySystem : MonoBehaviour
 {
@@ -62,9 +63,15 @@ public class InventorySystem : MonoBehaviour
             {
                 toInventory.AddItem(inventory[i]);
                 removeIndex.Add(i);
-              
             }
         }
+        for (int i = removeIndex.Count - 1; i >= 0; i--)
+        {
+            inventory.RemoveAt(removeIndex[i]);
+        }
+        if (inventory.Count < inventoryLenth)
+            isInventoryFull = false;
+
     }
     public bool isFull()
     {

@@ -63,7 +63,7 @@ public class Type_Worker : HumanType
         else if (currentTask!=null&&taskIsPause&&currentTask.taskType == Task.TaskType.resourceGathering && !isGoToStorage)
         {
             SetTaskPause(false);
-           // SetTask(currentTask);
+            SetTask(currentTask);
         }
 
     }

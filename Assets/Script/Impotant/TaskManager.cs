@@ -2,8 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TMPro;
 using UnityEngine;
+//using TMPro;
 
 public static class TaskManager
 {
@@ -47,14 +47,14 @@ public static class TaskManager
     {
         if (taskPanel == null)
             taskPanel = GameObject.FindGameObjectWithTag("Task Board");
-        taskPanel.GetComponentInChildren<TextMeshProUGUI>().text = string.Empty;
-        taskPanel.GetComponentInChildren<TextMeshProUGUI>().text = "Task Board";
+        //taskPanel.GetComponentInChildren<TextMesh>().text = string.Empty;
+        //taskPanel.GetComponentInChildren<TextMesh>().text = "Task Board";
         foreach (var key in tasks.Keys)
         {
-            if (tasks[key] == null)
-                taskPanel.GetComponentInChildren<TextMeshProUGUI>().text += "\n*" + key.taskDescription + " - " + key.taskProgress + '%';
-            else
-                taskPanel.GetComponentInChildren<TextMeshProUGUI>().text += "<color=green>" + "\n*" + key.taskDescription + "<color=black>" + " - " + key.taskProgress + '%';
+            //if (tasks[key] == null)
+             //   taskPanel.GetComponentInChildren<TextMesh>().text += "\n*" + key.taskDescription + " - " + key.taskProgress + '%';
+           // else
+             //   taskPanel.GetComponentInChildren<TextMesh>().text += "<color=green>" + "\n*" + key.taskDescription + "<color=black>" + " - " + key.taskProgress + '%';
         }
     }
 
