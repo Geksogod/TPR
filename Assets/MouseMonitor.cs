@@ -6,6 +6,7 @@ public class MouseMonitor : MonoBehaviour
     private Camera mainCamera;
     private bool colliderEnter;
     public GameObject currentGameObject;
+    public GameObject currentSelectedGameObject;
     public GameObject lastChoseGameObject;
     RaycastHit hit;
 
@@ -37,23 +38,29 @@ public class MouseMonitor : MonoBehaviour
                 {
                     touchListener.MouseDown();
                     lastChoseGameObject = hit.collider.gameObject;
+                    currentSelectedGameObject = lastChoseGameObject;
+                }
+                if(!Input.GetButtonDown("Fire1")&& currentSelectedGameObject!=null){
+                    currentSelectedGameObject = null;
                 }
 
 
             }
-            else if(colliderEnter)
+            else if (colliderEnter)
             {
                 colliderEnter = false;
                 touchListener.MouseExit();
                 touchListener = null;
                 currentGameObject = null;
+                currentSelectedGameObject = null;
             }
-            else if (hit.collider==null&&colliderEnter)
+            else if (hit.collider == null && colliderEnter)
             {
                 colliderEnter = false;
                 touchListener.MouseExit();
                 touchListener = null;
                 currentGameObject = null;
+                currentSelectedGameObject = null;
             }
         }
 

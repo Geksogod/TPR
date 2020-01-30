@@ -19,6 +19,7 @@ public class Type_Worker : HumanType
     private Building storage;
     [SerializeField]
     private bool isGoToStorage;
+    private TaskManager taskManager;
     private void Awake()
     {
         move = this.gameObject.GetComponent<Human_Move>() ?? this.gameObject.AddComponent<Human_Move>();
@@ -26,14 +27,19 @@ public class Type_Worker : HumanType
     }
     private void Start()
     {
-        TaskManager.AddWorker(this);
+        TaskManager taskManager = GameObject.FindObjectOfType<TaskManager>();
+        taskManager.AddWorker(this);
     }
 
     private void Update()
     {
         if (human.IsDead())
         {
-            TaskManager.RemoveWorker(this);
+            if(taskManager!=null)
+                taskManager.RemoveWorker(this);
+                //Destroy(this);
+                //Destroy(human);
+               // Destroy(move);
         }
         if (haveTask && !taskIsPause && !isTaskDoing && currentTask.taskType == Task.TaskType.resourceGathering && move.arrived)
         {
@@ -106,6 +112,9 @@ public class Type_Worker : HumanType
                 if (resource != null)
                 {
                     human.inventory.AddItem(resource);
+                    if(taskManager!=null){
+                        taskManager.TaskProgresing(this);
+                    }
                     Debug.Log("Inventory add Wood");
                 }
             }

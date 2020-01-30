@@ -5,113 +5,142 @@ using System.Linq;
 using UnityEngine;
 //using TMPro;
 
-public static class TaskManager
+public class TaskManager : MonoBehaviour
 {
-    private static GameObject taskPanel;
-    private static List<Task> taskList = new List<Task>();
-    private static int taskIndex;
-    private static List<Type_Worker> workers = new List<Type_Worker>();
-    private static Dictionary<Task, Type_Worker> tasks = new Dictionary<Task, Type_Worker>();
+    [SerializeField]
+    private List<Type_Worker> workers = new List<Type_Worker>();
+    public Dictionary<Type_Worker, Task> workerTask = new Dictionary<Type_Worker, Task>();
+    private bool isReadyToTakeTask = false;
+    private MouseMonitor mouseMonitor;
+    private int taskIndex = 0;
 
-
-    public static void AddWorker(Type_Worker worker)
+    public void AddWorker(Type_Worker worker)
     {
         workers.Add(worker);
     }
-    public static void RemoveWorker(Type_Worker worker)
+    public void RemoveWorker(Type_Worker worker)
     {
         workers.Remove(worker);
-    }
-    private static bool ConfirmTask(Task task)
-    {
-        tasks.Add(task, null);
-        Type_Worker freeWorker = FindFreeWorker();
-        if (freeWorker!=null)
-        TakeTask(freeWorker);
-        RedoText();
-        return true;
-    }
-    public static bool AddTask(string TaskName, Task.TaskType _taskType, GameObject TaskTarget, string TaskDescription, float TaskProgress = 0, bool IsCompleted = false)
-    {
-        Task newTask = new Task(TaskName, _taskType, TaskTarget, TaskDescription, taskIndex++, TaskProgress, IsCompleted);
-        return ConfirmTask(newTask);
-    }
-
-    public static void CanselTask(GameObject taskTarget)
-    {
-        tasks.Remove(tasks.Keys.Where(target => target.taskTarget == taskTarget).Single());
-        RedoText();
-    }
-
-    private static void RedoText()
-    {
-        if (taskPanel == null)
-            taskPanel = GameObject.FindGameObjectWithTag("Task Board");
-        //taskPanel.GetComponentInChildren<TextMesh>().text = string.Empty;
-        //taskPanel.GetComponentInChildren<TextMesh>().text = "Task Board";
-        foreach (var key in tasks.Keys)
+        foreach (var item in workerTask)
         {
-            //if (tasks[key] == null)
-             //   taskPanel.GetComponentInChildren<TextMesh>().text += "\n*" + key.taskDescription + " - " + key.taskProgress + '%';
-           // else
-             //   taskPanel.GetComponentInChildren<TextMesh>().text += "<color=green>" + "\n*" + key.taskDescription + "<color=black>" + " - " + key.taskProgress + '%';
-        }
-    }
-
-    public static void TaskProgresing(GameObject taskGameObject)
-    {
-        Task currentTask = tasks.Keys.Where(target => target.taskTarget == taskGameObject).Single();
-        switch (currentTask.taskType)
-        {
-            case Task.TaskType.resourceGathering:
-                ResourceContainer mainResources = taskGameObject.GetComponent<ResourceContainer>();
-                if (mainResources.balance > 0)
-                    currentTask.taskProgress = (100 / mainResources.maxBalance) * (mainResources.maxBalance - mainResources.balance);
-                else
-                    currentTask.taskProgress = 100;
-                break;
-            default:
-                break;
-        }
-        if (currentTask.taskProgress >= 100)
-            FinishTak(currentTask, taskGameObject);
-        RedoText();
-    }
-
-    private static void FinishTak(Task currentTask,GameObject taskGameObject)
-    {
-        currentTask.isCompleted = true;
-        Type_Worker worker = tasks[currentTask];
-        worker.haveTask = false;
-        tasks.Remove(currentTask);
-        TakeTask(worker);
-        taskGameObject.GetComponent<Outline>().enabled = false;
-    }
-
-    private static void TakeTask(Type_Worker worker)
-    {
-        if (tasks.Keys.Count > 0)
-            foreach (var key in tasks.Keys.ToList())
+            if (item.Key == worker)
             {
-                if (tasks[key] == null)
-                {
-                    tasks[key] = worker;
-                    worker.SetTask(key);
-                }
+                ChangeWorker(worker);
+                return;
             }
+        }
     }
 
-    private static Type_Worker FindFreeWorker()
+    private void Update()
+    {
+        if (EventManager.CurrentEvent == EventManager.Events.ChooseResources)
+        {
+            isReadyToTakeTask = true;
+        }
+        else
+        {
+            isReadyToTakeTask = false;
+        }
+        if (isReadyToTakeTask)
+        {
+            if (mouseMonitor == null)
+            {
+                mouseMonitor = GameObject.FindObjectOfType<MouseMonitor>().GetComponent<MouseMonitor>();
+            }
+            if (mouseMonitor.currentSelectedGameObject != null && !isTaskAlreadyCreate(mouseMonitor.currentSelectedGameObject))
+            {
+                GameObject taskGameobject = mouseMonitor.currentGameObject;
+                Task newTask = new Task("Get " + taskGameobject.name, Task.TaskType.resourceGathering, taskGameobject, "", taskIndex++, 0, false);
+                AddTask(newTask);
+            }
+        }
+    }
+
+
+    private void AddTask(Task newTask)
+    {
+        Type_Worker freeWorker = FindFreeWorker();
+        Debug.Log("Task was added " + newTask.taskName);
+        if (freeWorker != null)
+        {
+            freeWorker.haveTask = true;
+            workerTask.Add(freeWorker, newTask);
+            freeWorker.SetTask(newTask);
+        }
+    }
+
+    private void ChangeWorker(Type_Worker currentWorker){
+        Task task = null;
+        foreach (var item in workerTask)
+        {
+            if (item.Key == currentWorker)
+            {
+                task = item.Value;
+            }
+        }
+        workerTask.Remove(currentWorker);
+        AddTask(task);
+    }
+    private Type_Worker FindFreeWorker()
     {
         for (int i = 0; i < workers.Count; i++)
         {
-            Type_Worker worker = workers[i];
-            if (!worker.haveTask)
+            if (workers[i].haveTask == false)
             {
                 return workers[i];
             }
         }
         return null;
+    }
+    private bool isTaskAlreadyCreate(GameObject taskTarget)
+    {
+        foreach (var item in workerTask)
+        {
+            if (item.Value.taskTarget == taskTarget)
+                return true;
+        }
+        return false;
+    }
+    public void TaskProgresing(Type_Worker worker)
+    {
+        foreach (var item in workerTask)
+        {
+            switch (item.Value.taskType)
+            {
+                case Task.TaskType.resourceGathering:
+                    if (item.Key == worker)
+                    {
+                        ResourceContainer mainResources = item.Value.taskTarget.GetComponent<ResourceContainer>();
+                        if (mainResources != null)
+                        {
+                            if (mainResources.balance > 0)
+                                item.Value.taskProgress += (100 / mainResources.maxBalance) * (mainResources.maxBalance - mainResources.balance);
+                            else
+                            {
+                                item.Value.taskProgress = 100;
+                                FinishTask(item.Value);
+                            }
+                        }
+                    }
+                    break;
+            }
+        }
+    }
+    private void FinishTask(Task task)
+    {
+        Type_Worker worker = null;
+        foreach (var item in workerTask)
+        {
+            if (item.Value == task)
+            {
+                item.Value.isCompleted = true;
+                worker = item.Key;
+            }
+        }
+        if (worker != null)
+            workerTask.Remove(worker);
+        else
+            Debug.LogError("Can't finish task");
     }
 
 }
@@ -143,3 +172,4 @@ public class Task
         isCompleted = IsCompleted;
     }
 }
+
