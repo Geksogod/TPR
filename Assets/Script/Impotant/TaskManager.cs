@@ -69,7 +69,8 @@ public class TaskManager : MonoBehaviour
         }
     }
 
-    private void ChangeWorker(Type_Worker currentWorker){
+    private void ChangeWorker(Type_Worker currentWorker)
+    {
         Task task = null;
         foreach (var item in workerTask)
         {
@@ -103,28 +104,31 @@ public class TaskManager : MonoBehaviour
     }
     public void TaskProgresing(Type_Worker worker)
     {
-        foreach (var item in workerTask)
-        {
-            switch (item.Value.taskType)
+        if (workerTask.Count > 0)
+            foreach (var item in workerTask)
             {
-                case Task.TaskType.resourceGathering:
-                    if (item.Key == worker)
-                    {
-                        ResourceContainer mainResources = item.Value.taskTarget.GetComponent<ResourceContainer>();
-                        if (mainResources != null)
+                switch (item.Value.taskType)
+                {
+                    case Task.TaskType.resourceGathering:
+                        if (item.Key == worker)
                         {
-                            if (mainResources.balance > 0)
-                                item.Value.taskProgress += (100 / mainResources.maxBalance) * (mainResources.maxBalance - mainResources.balance);
-                            else
+                            ResourceContainer mainResources = item.Value.taskTarget.GetComponent<ResourceContainer>();
+                            if (mainResources != null)
                             {
-                                item.Value.taskProgress = 100;
-                                FinishTask(item.Value);
+                                if (mainResources.balance > 0)
+                                    item.Value.taskProgress = (100 / mainResources.maxBalance) * (mainResources.maxBalance - mainResources.balance);
+                                else
+                                {
+                                    Debug.Log("Task finish");
+                                    item.Value.taskProgress = 100;
+                                    FinishTask(item.Value);
+                                }
+                                Debug.Log(item.Value.taskProgress);
                             }
                         }
-                    }
-                    break;
+                        break;
+                }
             }
-        }
     }
     private void FinishTask(Task task)
     {
@@ -135,6 +139,7 @@ public class TaskManager : MonoBehaviour
             {
                 item.Value.isCompleted = true;
                 worker = item.Key;
+                item.Key.RemoveTask();
             }
         }
         if (worker != null)

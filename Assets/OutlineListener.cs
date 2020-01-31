@@ -43,10 +43,10 @@ public class OutlineListener : MonoBehaviour
     {
         if (mouseMonitor != null)
             CurrentGameObject = mouseMonitor.currentGameObject;
-        if (mouseMonitor != null && mouseMonitor.lastChoseGameObject != null && choosenGameObject != mouseMonitor.lastChoseGameObject)
+        if (mouseMonitor != null && mouseMonitor.lastChoseGameObject != null && choosenGameObject != mouseMonitor.currentSelectedGameObject)
         {
-            AddToOutlines(mouseMonitor.lastChoseGameObject);
-            choosenGameObject = mouseMonitor.lastChoseGameObject;
+            AddToOutlines(mouseMonitor.currentSelectedGameObject);
+            choosenGameObject = mouseMonitor.currentSelectedGameObject;
         }
     }
     private bool CanOutline(GameObject gameObject)

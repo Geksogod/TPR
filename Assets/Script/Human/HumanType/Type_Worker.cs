@@ -5,6 +5,15 @@ using UnityEngine;
 public class Type_Worker : HumanType
 {
 
+    public enum State
+    {
+        GoToTask,
+        DoTask,
+        ReadyToTakeTask,
+        GoToStorage
+    }
+    [SerializeField]
+    private State state;
     private Coroutine taskProcesing;
     private bool isTaskDoing;
     public bool haveTask;
@@ -20,62 +29,68 @@ public class Type_Worker : HumanType
     [SerializeField]
     private bool isGoToStorage;
     private TaskManager taskManager;
+
     private void Awake()
     {
+        Time.timeScale = 4;
         move = this.gameObject.GetComponent<Human_Move>() ?? this.gameObject.AddComponent<Human_Move>();
         human = this.gameObject.GetComponent<Human>() ?? this.gameObject.AddComponent<Human>();
     }
     private void Start()
     {
-        TaskManager taskManager = GameObject.FindObjectOfType<TaskManager>();
-        taskManager.AddWorker(this);
+        taskManager = GameObject.FindObjectOfType<TaskManager>();
+        if (taskManager != null)
+        {
+            taskManager.AddWorker(this);
+            state = State.ReadyToTakeTask;
+        }
     }
 
     private void Update()
     {
         if (human.IsDead())
         {
-            if(taskManager!=null)
+            if (taskManager != null)
                 taskManager.RemoveWorker(this);
-                //Destroy(this);
-                //Destroy(human);
-               // Destroy(move);
         }
         if (haveTask && !taskIsPause && !isTaskDoing && currentTask.taskType == Task.TaskType.resourceGathering && move.arrived)
         {
             StartDoTask();
         }
-
-        if (currentTask.taskType == Task.TaskType.resourceGathering && human.inventory.isFull())
+        if (human.inventory.isFull())
+            isGoToStorage = true;
+        if (isGoToStorage && state != State.GoToStorage)
         {
-            if (!taskIsPause)
+            if (haveTask && !taskIsPause)
             {
                 SetTaskPause(true);
-                storage = HumanHelper.FindNearBuilding(Building.BuildingType.Storage, transform.position);
-                Move_Position pos = new Move_Position(storage.gameObject);
-                move.SetMovePosition(pos, storage.gameObject.GetComponent<Collider>().bounds.extents.x * 2);
-                isGoToStorage= true;
-                StopCoroutine(taskProcesing);
+            }
+            GoToStorage();
+        }
+        else if (state == State.GoToStorage && move.arrived)
+        {
+            GetComponent<InventorySystem>().GetAllResorces(storage.GetComponent<InventorySystem>());
+            if (haveTask)
+            {
+                SetTaskPause(false);
             }
             else
             {
-                if (move.arrived&&isGoToStorage)
-                {
-                    GetComponent<InventorySystem>().GetAllResorces(storage.GetComponent<InventorySystem>());
-                    isGoToStorage = false;
-                }
+                if (state != State.ReadyToTakeTask)
+                    state = State.ReadyToTakeTask;
             }
-        }
-        else if (currentTask!=null&&taskIsPause&&currentTask.taskType == Task.TaskType.resourceGathering && !isGoToStorage)
-        {
-            SetTaskPause(false);
-            SetTask(currentTask);
+            isGoToStorage = false;
         }
 
     }
 
     public void SetTask(Task task)
     {
+        if (state != State.ReadyToTakeTask)
+        {
+            Debug.LogError("Worker can't take task");
+            return;
+        }
         isTaskDoing = false;
         currentTask = task;
         switch (currentTask.taskType)
@@ -86,9 +101,27 @@ public class Type_Worker : HumanType
                 haveTask = true;
                 break;
         }
+        state = State.GoToTask;
+    }
+    public void RemoveTask()
+    {
+        StopCoroutine(taskProcesing);
+        isTaskDoing = false;
+        currentTask = null;
+        haveTask = false;
+        if (human.inventory.HaveResources())
+        {
+            isGoToStorage = true;
+        }
     }
 
-
+    private void GoToStorage()
+    {
+        storage = HumanHelper.FindNearBuilding(Building.BuildingType.Storage, transform.position);
+        Move_Position pos = new Move_Position(storage.gameObject);
+        move.SetMovePosition(pos, storage.gameObject.GetComponent<Collider>().bounds.extents.x * 2);
+        state = State.GoToStorage;
+    }
 
     protected override void DoTask()
     {
@@ -98,6 +131,7 @@ public class Type_Worker : HumanType
         isTaskDoing = true;
         human.SetAnimationTrigger("Work");
         taskProcesing = StartCoroutine(DoingTask(3));
+        state = State.DoTask;
     }
 
     private IEnumerator DoingTask(float time)
@@ -106,14 +140,24 @@ public class Type_Worker : HumanType
         while (true)
         {
             yield return new WaitForSeconds(time);
+            if (currentTask == null)
+                break;
             if (!taskIsPause)
             {
                 Item resource = currentTask.taskTarget.GetComponent<ResourceContainer>().GiveResource(workStrange);
                 if (resource != null)
                 {
                     human.inventory.AddItem(resource);
-                    if(taskManager!=null){
-                        taskManager.TaskProgresing(this);
+                    if (taskManager != null && currentTask != null && haveTask)
+                    {
+                        try
+                        {
+                            taskManager.TaskProgresing(this);
+                        }
+
+                        catch{
+
+                        }
                     }
                     Debug.Log("Inventory add Wood");
                 }
@@ -128,9 +172,16 @@ public class Type_Worker : HumanType
     }
     public void SetTaskPause(bool isPause)
     {
-        if (currentTask != null)
+        taskIsPause = isPause;
+        if (isPause)
         {
-            taskIsPause = isPause;
+            StopCoroutine(taskProcesing);
         }
+        else
+        {
+            state = State.ReadyToTakeTask;
+            SetTask(currentTask);
+        }
+
     }
 }

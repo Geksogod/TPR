@@ -11,12 +11,26 @@ public class InventorySystem : MonoBehaviour
     private bool isInventoryFull;
     [SerializeField]
     private int inventoryLenth;
+    [SerializeField]
+    private bool isStorage;
+    private ResourceManager resourceManager;
+    private void Start()
+    {
+        if (isStorage)
+        {
+            resourceManager = GameObject.FindObjectOfType<ResourceManager>();
+        }
+    }
 
     public void AddItem(Item item)
     {
         if (!isInventoryFull)
         {
             inventory.Add(item);
+            if (isStorage && typeof(Resource) == item.GetType())
+            {
+                resourceManager.AddResorces((Resource)item);
+            }
             if (inventory.Count >= inventoryLenth)
             {
                 isInventoryFull = true;
@@ -30,6 +44,10 @@ public class InventorySystem : MonoBehaviour
             if (!isInventoryFull)
             {
                 inventory.Add(items[i]);
+                if (isStorage && typeof(Resource) == items[i].GetType())
+                {
+                    resourceManager.AddResorces((Resource)items[i]);
+                }
                 if (inventory.Count >= inventoryLenth)
                 {
                     isInventoryFull = true;
@@ -76,6 +94,16 @@ public class InventorySystem : MonoBehaviour
     public bool isFull()
     {
         return isInventoryFull;
+    }
+    public bool HaveResources()
+    {
+        for (int i = 0; i < inventory.Count; i++)
+        {
+            if (inventory[i].GetType() == typeof(Resource))
+                return true;
+
+        }
+        return false;
     }
 
 }
