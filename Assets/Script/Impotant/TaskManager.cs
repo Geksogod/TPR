@@ -10,13 +10,20 @@ public class TaskManager : MonoBehaviour
     [SerializeField]
     private List<Type_Worker> workers = new List<Type_Worker>();
     public Dictionary<Type_Worker, Task> workerTask = new Dictionary<Type_Worker, Task>();
+
+    private Queue<Task> taskInQueue = new Queue<Task>();
     private bool isReadyToTakeTask = false;
     private MouseMonitor mouseMonitor;
     private int taskIndex = 0;
+    private OutlineListener outlineListener;
 
     public void AddWorker(Type_Worker worker)
     {
         workers.Add(worker);
+    }
+    private void Start()
+    {
+        outlineListener = GameObject.FindObjectOfType<OutlineListener>();
     }
     public void RemoveWorker(Type_Worker worker)
     {
@@ -31,6 +38,10 @@ public class TaskManager : MonoBehaviour
         }
     }
 
+    private bool isHasFreeTask()
+    {
+        return taskInQueue.Count > 0;
+    }
     private void Update()
     {
         if (EventManager.CurrentEvent == EventManager.Events.ChooseResources)
@@ -51,11 +62,28 @@ public class TaskManager : MonoBehaviour
             {
                 GameObject taskGameobject = mouseMonitor.currentGameObject;
                 Task newTask = new Task("Get " + taskGameobject.name, Task.TaskType.resourceGathering, taskGameobject, "", taskIndex++, 0, false);
+                if (outlineListener == null)
+                    outlineListener = GameObject.FindObjectOfType<OutlineListener>();
+                if (outlineListener != null && outlineListener.CanOutline(taskGameobject))
+                {
+                    outlineListener.AddToOutlines(taskGameobject);
+                }
                 AddTask(newTask);
             }
         }
+        if (isHasFreeTask()&&FindFreeWorker()!=null)
+            SetWorkerTaskInQueue(FindFreeWorker());
     }
 
+    private void SetWorkerTaskInQueue(Type_Worker freeWorker)
+    {
+        if (!isHasFreeTask())
+            return;
+        Task newTask = taskInQueue.Dequeue();
+        freeWorker.haveTask = true;
+        workerTask.Add(freeWorker, newTask);
+        freeWorker.SetTask(newTask);
+    }
 
     private void AddTask(Task newTask)
     {
@@ -66,6 +94,11 @@ public class TaskManager : MonoBehaviour
             freeWorker.haveTask = true;
             workerTask.Add(freeWorker, newTask);
             freeWorker.SetTask(newTask);
+        }
+        else
+        {
+            taskInQueue.Enqueue(newTask);
+            Debug.Log("Task Added to Queue");
         }
     }
 
@@ -82,11 +115,12 @@ public class TaskManager : MonoBehaviour
         workerTask.Remove(currentWorker);
         AddTask(task);
     }
+
     private Type_Worker FindFreeWorker()
     {
         for (int i = 0; i < workers.Count; i++)
         {
-            if (workers[i].haveTask == false)
+            if (workers[i].haveTask == false&&workers[i].GetState() == Type_Worker.State.ReadyToTakeTask)
             {
                 return workers[i];
             }
@@ -139,6 +173,7 @@ public class TaskManager : MonoBehaviour
             {
                 item.Value.isCompleted = true;
                 worker = item.Key;
+                outlineListener.RemoveFromOutline(item.Value.taskTarget);
                 item.Key.RemoveTask();
             }
         }

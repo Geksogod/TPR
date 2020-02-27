@@ -4,6 +4,10 @@ using UnityEngine;
 
 public class EventManager : MonoBehaviour
 {
+    //FIXME:Time.timeScale = 4
+    private void Start() {
+        Time.timeScale = 4;
+    }
     public enum Events
     {
         None,

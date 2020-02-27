@@ -32,7 +32,6 @@ public class Type_Worker : HumanType
 
     private void Awake()
     {
-        Time.timeScale = 4;
         move = this.gameObject.GetComponent<Human_Move>() ?? this.gameObject.AddComponent<Human_Move>();
         human = this.gameObject.GetComponent<Human>() ?? this.gameObject.AddComponent<Human>();
     }
@@ -183,5 +182,8 @@ public class Type_Worker : HumanType
             SetTask(currentTask);
         }
 
+    }
+    public State GetState(){
+        return state;
     }
 }

@@ -28,8 +28,8 @@ public class OutlineListener : MonoBehaviour
             }
             else if (curretGameObject != null && value == null)
             {
-                if (value == null&& !InAList(curretGameObject))
-                outline.enabled = false;
+                if (value == null && !InAList(curretGameObject))
+                    outline.enabled = false;
             }
         }
     }
@@ -43,13 +43,8 @@ public class OutlineListener : MonoBehaviour
     {
         if (mouseMonitor != null)
             CurrentGameObject = mouseMonitor.currentGameObject;
-        if (mouseMonitor != null && mouseMonitor.lastChoseGameObject != null && choosenGameObject != mouseMonitor.currentSelectedGameObject)
-        {
-            AddToOutlines(mouseMonitor.currentSelectedGameObject);
-            choosenGameObject = mouseMonitor.currentSelectedGameObject;
-        }
     }
-    private bool CanOutline(GameObject gameObject)
+    public bool CanOutline(GameObject gameObject)
     {
         if (gameObject == null || gameObject.GetComponent<Outline>() == null)
             return false;
@@ -75,7 +70,7 @@ public class OutlineListener : MonoBehaviour
         return false;
     }
 
-    private void AddToOutlines(GameObject gameObject)
+    public void AddToOutlines(GameObject gameObject)
     {
         if (!CanOutline(gameObject))
             return;
@@ -83,6 +78,25 @@ public class OutlineListener : MonoBehaviour
         outline.enabled = true;
         outline.color = 0;
         outlines.Add(outline);
+    }
+    public void RemoveFromOutline(GameObject removeFrom)
+    {
+        if (!CanRemoveOutline(removeFrom)){
+            Debug.LogError("Error");
+            return;
+        }
+        Outline outline = removeFrom.GetComponent<Outline>();
+        outline.enabled = false;
+        outline.color = 0;
+        outlines.Remove(outline);
+    }
+
+    public bool CanRemoveOutline(GameObject removeFrom)
+    {
+        if (removeFrom.GetComponent<Outline>() == null)
+            return false;
+        Outline outline = removeFrom.GetComponent<Outline>();
+        return outlines.Contains(outline);
     }
 
 

@@ -60,7 +60,6 @@ public class ResourceContainer : MonoBehaviour, ITouchListener
                 StopAllCoroutines();
             }
             ChangeBalance(-1);
-           // TaskManager.TaskProgresing(this.gameObject);
             return resources;
         }
         return null;
@@ -84,10 +83,6 @@ public class ResourceContainer : MonoBehaviour, ITouchListener
 
     public void MouseDown()
     {
-        if (EventManager.CurrentEvent == EventManager.Events.ChooseResources && !chosen)
-        {
-           // chosen = TaskManager.AddTask("Get Resurces", Task.TaskType.resourceGathering, this.gameObject, "Get this Wood");         
-        }
     }
 
     public void MouseEnter()
