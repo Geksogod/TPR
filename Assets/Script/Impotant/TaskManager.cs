@@ -60,19 +60,23 @@ public class TaskManager : MonoBehaviour
             }
             if (mouseMonitor.currentSelectedGameObject != null && !isTaskAlreadyCreate(mouseMonitor.currentSelectedGameObject))
             {
-                GameObject taskGameobject = mouseMonitor.currentGameObject;
-                Task newTask = new Task("Get " + taskGameobject.name, Task.TaskType.resourceGathering, taskGameobject, "", taskIndex++, 0, false);
-                if (outlineListener == null)
-                    outlineListener = GameObject.FindObjectOfType<OutlineListener>();
-                if (outlineListener != null && outlineListener.CanOutline(taskGameobject))
-                {
-                    outlineListener.AddToOutlines(taskGameobject);
-                }
-                AddTask(newTask);
+                if (mouseMonitor.currentGameObject.GetComponent<ResourceContainer>() != null && mouseMonitor.currentGameObject.GetComponent<ResourceContainer>().HasResources())
+                    PrepareToTakeTask(mouseMonitor.currentGameObject);
             }
         }
-        if (isHasFreeTask()&&FindFreeWorker()!=null)
+        if (isHasFreeTask() && FindFreeWorker() != null)
             SetWorkerTaskInQueue(FindFreeWorker());
+    }
+    private void PrepareToTakeTask(GameObject taskTarget)
+    {
+        Task newTask = new Task("Get " + taskTarget.name, Task.TaskType.resourceGathering, taskTarget, "", taskIndex++, 0, false);
+        if (outlineListener == null)
+            outlineListener = GameObject.FindObjectOfType<OutlineListener>();
+        if (outlineListener != null && outlineListener.CanOutline(taskTarget))
+        {
+            outlineListener.AddToOutlines(taskTarget);
+        }
+        AddTask(newTask);
     }
 
     private void SetWorkerTaskInQueue(Type_Worker freeWorker)
@@ -120,7 +124,7 @@ public class TaskManager : MonoBehaviour
     {
         for (int i = 0; i < workers.Count; i++)
         {
-            if (workers[i].haveTask == false&&workers[i].GetState() == Type_Worker.State.ReadyToTakeTask)
+            if (workers[i].haveTask == false && workers[i].GetState() == Type_Worker.State.ReadyToTakeTask)
             {
                 return workers[i];
             }

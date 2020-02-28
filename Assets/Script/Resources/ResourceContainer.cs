@@ -80,6 +80,9 @@ public class ResourceContainer : MonoBehaviour, ITouchListener
         }
     }
 
+    public bool HasResources(){
+        return balance>0;
+    }
 
     public void MouseDown()
     {
