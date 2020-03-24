@@ -16,10 +16,10 @@ public class CameraTransform : MonoBehaviour
     private float rotationYSpeed;
     [Header("Change Position Settings"), SerializeField, Range(1, 100)]
     private float positionSpeed;
+    private float myPositionSpeed;
     [SerializeField]
     private float trashHold;
     private float xAxis;
-
 
     [SerializeField, Header("Mouse Position")]
     private float MouseX;
@@ -37,6 +37,7 @@ public class CameraTransform : MonoBehaviour
     private void Start()
     {
         scrollValue = MinZoom;
+        myPositionSpeed = positionSpeed;
     }
 
     private void LateUpdate()
@@ -49,9 +50,6 @@ public class CameraTransform : MonoBehaviour
         if (Input.GetMouseButton(1))
         {
             ChangeRotationCamera();
-        }
-        if (Input.GetMouseButton(1))
-        {
             ChangeCameraPosition();
         }
     }
@@ -74,7 +72,7 @@ public class CameraTransform : MonoBehaviour
 
     private void ChangeRotationCamera()
     {
-
+       // transform.Translate(new Vector3(MouseX, MouseY, 0f).normalized * Time.deltaTime);
         if (xAxis < Input.mousePosition.x)
         {
             cameraMain.transform.Rotate(Vector3.up, rotationYSpeed * Time.deltaTime, Space.World);
@@ -86,28 +84,40 @@ public class CameraTransform : MonoBehaviour
             cameraMain.transform.Rotate(Vector3.up, -1 * (rotationYSpeed * Time.deltaTime), Space.World);
             xAxis = Input.mousePosition.x;
         }
+        
     }
     private void ChangeCameraPosition()
     {
         Vector3 panMovement = Vector3.zero;
         if (Input.GetKey(KeyCode.W) || Input.mousePosition.y >= Screen.height - ScreenEdgeBorderThickness)
         {
-            panMovement += Vector3.forward * positionSpeed * Time.deltaTime;
+            panMovement += Vector3.up;
+            panMovement += Vector3.forward;
         }
         if (Input.GetKey(KeyCode.S) || Input.mousePosition.y <= ScreenEdgeBorderThickness)
         {
-            panMovement -= Vector3.forward * positionSpeed * Time.deltaTime;
+            panMovement += Vector3.down;
+            panMovement += Vector3.back;
         }
+        
         if (Input.GetKey(KeyCode.A) || Input.mousePosition.x <= ScreenEdgeBorderThickness)
         {
-            panMovement += Vector3.left * positionSpeed * Time.deltaTime;
+            panMovement += Vector3.left*2;
         }
         if (Input.GetKey(KeyCode.D) || Input.mousePosition.x >= Screen.width - ScreenEdgeBorderThickness)
         {
-            panMovement += Vector3.right * positionSpeed * Time.deltaTime;
+            panMovement += Vector3.right * 2;
         }
+        if (panMovement != Vector3.zero)
+        {
 
-        transform.Translate(panMovement, Space.World);
+           myPositionSpeed += positionSpeed * Time.deltaTime / 10;
+        }
+        else
+        {
+            myPositionSpeed = positionSpeed;
+        }
+        transform.Translate(panMovement.normalized* myPositionSpeed * Time.deltaTime,Space.Self);
     }
 
 }

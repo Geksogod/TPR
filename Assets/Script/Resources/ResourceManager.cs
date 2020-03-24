@@ -1,11 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class ResourceManager : MonoBehaviour
 {
     [SerializeField]
     private int woodCount;
+    [SerializeField]
+    private TextMeshProUGUI woodText;
 
     public void AddResorces(Resource newResources)
     {
@@ -15,6 +18,7 @@ public class ResourceManager : MonoBehaviour
                 woodCount++;
                 break;
         }
+        WriteText();
     }
     public void RemoveResorces(Resource newResources)
     {
@@ -33,5 +37,10 @@ public class ResourceManager : MonoBehaviour
                 return woodCount;
         }
         return int.MinValue;
+    }
+    private void WriteText()
+    {
+        if (woodText != null)
+            woodText.text = woodCount.ToString();
     }
 }

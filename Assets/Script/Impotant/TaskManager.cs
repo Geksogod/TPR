@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-//using TMPro;
+using TMPro;
 
 public class TaskManager : MonoBehaviour
 {
@@ -92,7 +92,6 @@ public class TaskManager : MonoBehaviour
     private void AddTask(Task newTask)
     {
         Type_Worker freeWorker = FindFreeWorker();
-        Debug.Log("Task was added " + newTask.taskName);
         if (freeWorker != null)
         {
             freeWorker.haveTask = true;
@@ -102,7 +101,6 @@ public class TaskManager : MonoBehaviour
         else
         {
             taskInQueue.Enqueue(newTask);
-            Debug.Log("Task Added to Queue");
         }
     }
 
@@ -157,11 +155,9 @@ public class TaskManager : MonoBehaviour
                                     item.Value.taskProgress = (100 / mainResources.maxBalance) * (mainResources.maxBalance - mainResources.balance);
                                 else
                                 {
-                                    Debug.Log("Task finish");
                                     item.Value.taskProgress = 100;
                                     FinishTask(item.Value);
                                 }
-                                Debug.Log(item.Value.taskProgress);
                             }
                         }
                         break;

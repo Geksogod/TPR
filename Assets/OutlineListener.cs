@@ -26,10 +26,23 @@ public class OutlineListener : MonoBehaviour
                     outline.enabled = true;
                 }
             }
-            else if (curretGameObject != null && value == null)
+            else if (curretGameObject != null && outline!=null&& value == null)
             {
                 if (value == null && !InAList(curretGameObject))
                     outline.enabled = false;
+                else if(InAList(curretGameObject)&& outline.color == 2)
+                {
+                    outline.enabled = false;
+                }
+            }
+            else if(curretGameObject != null && !InAList(value))
+            {
+                if (value.GetComponent<Outline>() != null)
+                    outline = value.GetComponent<Outline>();
+                else
+                    return;
+                outline.enabled = true;
+                outline.color = 2;
             }
         }
     }
